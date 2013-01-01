@@ -49,5 +49,5 @@ def email():
 
 def classFactory(iface):
     # load LiveStats class from file LiveStats
-    from livestats import LiveStats
-    return LiveStats(iface)
+    from LSliveStats import LSliveStats
+    return LSliveStats(iface)

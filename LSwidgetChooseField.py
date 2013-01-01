@@ -20,11 +20,35 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtCore, QtGui
-# create the dialog for zoom to point
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from qgis.core import *
 
 
-class LiveStatsDialog(QtGui.QDialog):
-    def __init__(self):
-        QtGui.QDialog.__init__(self)
-        
+class LSwidgetChooseField(QComboBox):
+
+    def __init__(self, iface):
+        QComboBox.__init__(self)
+        self.iface = iface
+
+
+
+    def rebuild(self, layer):
+
+        # Rebuild fields menu
+        previousChoosenField = self.currentText()
+
+
+        self.blockSignals(True)
+        self.clear() 
+        if layer is not None:
+            fields = layer.pendingFields()
+            for key in fields:
+                self.addItem(fields[key].name())
+        self.addItem('$area')
+        self.addItem('$length')
+        self.addItem('$perimeter')
+        self.blockSignals(False)
+
+        search = self.findText(previousChoosenField)
+        self.setCurrentIndex( max(0,search) )

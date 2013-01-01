@@ -23,34 +23,21 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
-# Initialize Qt resources from file resources.py
+
 import resources_rc
-# Import the code for the dialog
-from livestatsdialog import LiveStatsDialog
+
+from LSbar import LSbar
 
 
-class LiveStats:
+class LSliveStats:
 
     def __init__(self, iface):
         # Save reference to the QGIS interface
         self.iface = iface
-        # Create the dialog and keep reference
-        self.dlg = LiveStatsDialog()
-        # initialize plugin directory
-        self.plugin_dir = QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/livestats"
-        # initialize locale
-        localePath = ""
-        locale = QSettings().value("locale/userLocale").toString()[0:2]
 
-        if QFileInfo(self.plugin_dir).exists():
-            localePath = self.plugin_dir + "/i18n/livestats_" + locale + ".qm"
-
-        if QFileInfo(localePath).exists():
-            self.translator = QTranslator()
-            self.translator.load(localePath)
-
-            if qVersion() > '4.3.3':
-                QCoreApplication.installTranslator(self.translator)
+        #Will hold the stats bars
+        self.statsBars = []
+        
 
     def initGui(self):
         # Create action that will start plugin configuration
@@ -69,14 +56,17 @@ class LiveStats:
         self.iface.removePluginMenu(u"&Live Statistics", self.action)
         self.iface.removeToolBarIcon(self.action)
 
+        for statsBar in self.statsBars:
+            statsBar.setParent(None)
+        self.statsBars = []
+
     # run method that performs all the real work
     def run(self):
-        # show the dialog
-        self.dlg.show()
-        # Run the dialog event loop
-        result = self.dlg.exec_()
-        # See if OK was pressed
-        if result == 1:
-            # do something useful (delete the line containing pass and
-            # substitute with your code)
-            pass
+
+        # Create the dialog and keep reference
+        newStatsBar = LSbar(self.iface)
+
+        self.iface.mainWindow().addToolBar(Qt.BottomToolBarArea, newStatsBar)
+        self.statsBars.append(newStatsBar)
+
+
