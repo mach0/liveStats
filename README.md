@@ -18,7 +18,7 @@ You can add as many LiveStats palettes as you like.
 ## Todo and bugs ##
 
 Please see the issue tracker :
-[https://github.com/redlegoreng/liveStats/issues](https://github.com/redlegoreng/liveStats/issues)
+https://github.com/redlegoreng/liveStats/issues
 
 
 ## Version history ##
