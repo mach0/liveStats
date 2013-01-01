@@ -4,6 +4,7 @@
 ## Description ##
 
 LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback.
+![Screenshot](screenshot.png)
 
 
 ## Usage ##

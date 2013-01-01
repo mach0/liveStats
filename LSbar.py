@@ -50,6 +50,7 @@ class LSbar(QToolBar):
         self.factor = '1'
         self.separator = 2
         self.saveWith = 2
+        #self.position = Qt.BottomToolBarArea
 
         # LiveStatBar's dialog
         self.dialog = LSeditor(self.iface)
@@ -65,13 +66,16 @@ class LSbar(QToolBar):
 
         # Create widgets
         self.nameWidget = QLabel(self.name);
-        self.separatorWidget = QLabel(' : ')
         self.displayWidget = QLabel("Click to edit")
 
         # Layout widgets
         self.addWidget( self.nameWidget )
-        self.addWidget( self.separatorWidget )
         self.addWidget( self.displayWidget )
+
+
+        self.setMinimumSize( self.sizeHint() )
+
+
 
         # We display the dialog at creatin (if required)
         if showDialog:
@@ -97,6 +101,7 @@ class LSbar(QToolBar):
         self.separator = self.dialog.separatorUI.checkState()
         self.saveWith = self.dialog.saveUI.checkState()
 
+        self.setObjectName(self.name)
         # And we recompute the bar
         self.compute()
 
@@ -122,11 +127,13 @@ class LSbar(QToolBar):
             layer = self.layer
         else:
             # If the layer is None, it means we display the activeLayer
-            if self.iface.activeLayer() is None:
-                self.displayWidget.setText('NO DATA (select a layer)')
+            activeLayer = self.iface.activeLayer()
+            if activeLayer is None or activeLayer.type() != QgsMapLayer.VectorLayer:
+                self.setText('NO LAYER')
                 return
-            layer = self.iface.activeLayer()
-        
+            layer = activeLayer
+
+       
 
         #Prepare the computer
         if self.functionName == 'Count':
@@ -144,6 +151,10 @@ class LSbar(QToolBar):
         # This is a bit cryptic (I copied it from statist plugin)
         fieldIndex = layer.fieldNameIndex( self.fieldName )
         layer.select( [ fieldIndex ], QgsRectangle(), True )
+
+        if self.fieldName not in ['$area', '$length'] and fieldIndex == -1:
+            self.setText('NO FIELD')
+            return
 
         #Do the actual computation
         if self.selectedOnly:
@@ -164,6 +175,16 @@ class LSbar(QToolBar):
         result = self.formatNumber(result)
         result = result+self.suffix
         self.displayWidget.setText(result)
+
+        self.setText(result)
+
+
+    def setText(self, text):
+        self.displayWidget.setText(text + ' : ')
+        #Resize the widget
+        self.setMinimumSize( self.sizeHint() )
+
+
 
 
     def valueForFeature(self, feature, fieldIndex):
@@ -195,6 +216,7 @@ class LSbar(QToolBar):
         returnStringList.append( self.suffix )
         returnStringList.append( self.factor )
         returnStringList.append( str(self.separator) )
+        #returnStringList.append( str(self.position) )
 
         return returnStringList.join('*|*')
 
@@ -216,6 +238,7 @@ class LSbar(QToolBar):
         self.factor = loadStringList[8]
         self.separator = int(loadStringList[9])
         self.saveWith = 2
+        #self.position = int(loadStringList[11])
 
         self.compute()
 

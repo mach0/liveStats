@@ -123,6 +123,8 @@ class LSeditor(QDialog):
         QObject.connect(self.cancelUI,SIGNAL("pressed()"),self.reject)
 
     def show(self, bar):
+        self.setWindowTitle( bar.name )
+
         self.nameUI.setText( bar.name )
         self.autoNameUI.setCheckState( bar.autoName )
         self.layerUI.rebuild( bar.layer )
@@ -135,10 +137,14 @@ class LSeditor(QDialog):
         self.separatorUI.setCheckState( bar.separator )
         self.saveUI.setCheckState( bar.saveWith )
 
+        self.createName(0)
         QDialog.show(self)
 
     def choosedLayerChanged(self, index):
-        self.fieldUI.rebuild( self.layerUI.currentLayer(), None )
+        currentLayer = self.layerUI.currentLayer()
+        if currentLayer is None:
+            currentLayer = self.iface.activeLayer()
+        self.fieldUI.rebuild( currentLayer, None )
 
     def toggleAutoName(self, index):
         if not self.autoNameUI.checkState():

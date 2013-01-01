@@ -40,6 +40,13 @@ class LSwidgetChooseField(QComboBox):
         self.addItem('$area')
         self.addItem('$length')
         #self.addItem('$perimeter')
+
+        if layer is None:
+            layer = self.iface.activeLayer()
+            if layer is not None and layer.type() != QgsMapLayer.VectorLayer:
+                layer = None
+                
+
         if layer is not None:
             fields = layer.pendingFields()
             for key in fields:
