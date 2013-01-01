@@ -70,7 +70,7 @@ class LSmaxComputer(LScomputer):
 class LSmeanComputer(LScomputer):
     def __init__(self):
         self.val = 0
-        self.count = True
+        self.count = 0
     def addVal(self, val):
         self.val += val
         self.count += 1

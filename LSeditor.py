@@ -69,6 +69,8 @@ class LSeditor(QDialog):
 
         self.acceptUI.setDefault(True)
 
+        self.nameUI.setMinimumWidth(300)
+
 
         #Layout widgets
         self.layout.addWidget(QLabel('Name'),0,0)
@@ -93,7 +95,7 @@ class LSeditor(QDialog):
         QObject.connect(self.layerUI,SIGNAL("currentIndexChanged(int)"),self.createName)
         QObject.connect(self.fieldUI,SIGNAL("currentIndexChanged(int)"),self.createName)
         QObject.connect(self.functionUI,SIGNAL("currentIndexChanged(int)"),self.createName)
-        QObject.connect(self.selectionUI,SIGNAL("currentIndexChanged(int)"),self.createName)
+        QObject.connect(self.selectionUI,SIGNAL("stateChanged(int)"),self.createName)
 
         QObject.connect(self.layerUI,SIGNAL("activated(int)"),self.choosedLayerChanged)
         QObject.connect(self.acceptUI,SIGNAL("pressed()"),self.accept)
