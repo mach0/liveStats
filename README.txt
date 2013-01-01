@@ -1,34 +1,29 @@
-Plugin Builder Results
+# LiveStats #
 
-Your plugin LiveStats was created in:
-    C:\Users\Olivier\.qgis\python\plugins\LiveStats
 
-Your QGIS plugin directory is located at:
-    C:/Users/Olivier/.qgis//python/plugins
+## Description ##
 
-What's Next:
+LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback.
 
-  * Copy the entire directory containing your new plugin to the QGIS plugin
-    directory
 
-  * Compile the ui file using pyuic4
+## Usage ##
 
-  * Compile the resources file using pyrcc4
+Click on the LiveStats button to add a LiveStat. A configuration dialog will pop up.
+Once configured, the statistic will be displayed at the bottom of the main window. You can move it around if you like and even display it as a floating palette.
+Click on it to edit its settings.
 
-  * Test the plugin by enabling it in the QGIS plugin manager
+You can add as many LiveStats palettes as you like.
 
-  * Customize it by editing the implementation file:
-         livestats.py
 
-  * Create your own custom icon, replacing the default icon.png
+## Todo and bugs ##
 
-  * Modify your user interface by opening livestats.ui
-    in Qt Designer (don't forget to compile it with pyuic4 after changing it)
+Please see the issue tracker :
+[https://github.com/redlegoreng/liveStats/issues](https://github.com/redlegoreng/liveStats/issues)
 
-  * You can use the Makefile to compile your Ui and resource files when
-    you make changes. This requires GNU make (gmake)
 
-For more information, see the PyQGIS Developer Cookbook at:
-http://www.qgis.org/pyqgis-cookbook/index.html
+## Version history ##
+- 2013-01-01 - version 0.0 : work started
 
-(C) 2012 GeoApt LLC - geoapt.com
+
+## Contribute ##
+Github repository : https://github.com/redlegoreng/liveStats.git

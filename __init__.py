@@ -27,7 +27,7 @@ def name():
 
 
 def description():
-    return "Display live statistics about vector selections"
+    return "LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback."
 
 
 def version():

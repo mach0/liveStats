@@ -96,7 +96,7 @@ class LSbar(QToolBar):
             computer = LSmeanComputer()
 
         fieldIndex = layer.fieldNameIndex( self.dialog.fieldUI.currentText() )
-        layer.select( [ fieldIndex ], QgsRectangle(), False )
+        layer.select( [ fieldIndex ], QgsRectangle(), True )
 
         result = 0
         if self.dialog.selectionUI.checkState():
@@ -118,6 +118,10 @@ class LSbar(QToolBar):
 
         if self.dialog.fieldUI.currentText() == '$area':
             return feature.geometry().area()
+        elif self.dialog.fieldUI.currentText() == '$length':
+            return feature.geometry().length ()
+        #elif self.dialog.fieldUI.currentText() == '$perimeter':
+        #    return feature.geometry().length ()
         else:
             return float( feature.attributeMap()[ fieldIndex ].toDouble()[ 0 ] )#I dont understand this line (copied from statist plugin)
 

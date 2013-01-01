@@ -41,13 +41,13 @@ class LSwidgetChooseField(QComboBox):
 
         self.blockSignals(True)
         self.clear() 
+        self.addItem('$area')
+        self.addItem('$length')
+        #self.addItem('$perimeter')
         if layer is not None:
             fields = layer.pendingFields()
             for key in fields:
                 self.addItem(fields[key].name())
-        self.addItem('$area')
-        self.addItem('$length')
-        self.addItem('$perimeter')
         self.blockSignals(False)
 
         search = self.findText(previousChoosenField)

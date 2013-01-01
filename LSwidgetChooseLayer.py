@@ -44,7 +44,7 @@ class LSwidgetChooseLayer(QComboBox):
 
         self.blockSignals(True)
         self.clear()   
-        self.addItem('ACTIVE LAYER')
+        self.addItem('-active-')
         for layer in self.eligibleLayers:
             self.addItem(layer.name())
         self.blockSignals(False)
@@ -53,10 +53,12 @@ class LSwidgetChooseLayer(QComboBox):
         self.setCurrentIndex( max(0,search) )
 
     def currentLayer(self):
+        #QgsMessageLog.logMessage('Current layer...','LiveStats')
+        #QgsMessageLog.logMessage(str(self.iface.activeLayer().type()),'LiveStats')
         index = self.currentIndex()
         if index > 0:
             return self.eligibleLayers[index-1]
-        else:
+        else:            
             if self.iface.activeLayer() is not None and self.iface.activeLayer().type() == QgsMapLayer.VectorLayer: 
                 return self.iface.activeLayer()
             else:

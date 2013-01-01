@@ -56,9 +56,6 @@ class LSeditor(QDialog):
         self.acceptUI = QPushButton('OK')
         self.cancelUI = QPushButton('Cancel')
 
-        self.autoNameUI.setChecked(False)
-        self.nameUI.setEnabled(False)
-
         self.functionUI.addItem('Sum')
         self.functionUI.addItem('Mean')
         self.functionUI.addItem('Min')
@@ -70,19 +67,21 @@ class LSeditor(QDialog):
         self.updateUI.addItem('always')
         self.updateUI.addItem('on click')
 
+        self.acceptUI.setDefault(True)
+
 
         #Layout widgets
         self.layout.addWidget(QLabel('Name'),0,0)
         self.layout.addWidget(self.nameUI,0,1)
         self.layout.addWidget(self.autoNameUI,0,2)
         self.layout.addWidget(QLabel('Layer'),1,0)
-        self.layout.addWidget(self.layerUI,1,1)
+        self.layout.addWidget(self.layerUI,1,1,1,2)
         self.layout.addWidget(QLabel('Field'),2,0)
-        self.layout.addWidget(self.fieldUI,2,1)
+        self.layout.addWidget(self.fieldUI,2,1,1,2)
         self.layout.addWidget(QLabel('Function'),3,0)
-        self.layout.addWidget(self.functionUI,3,1)
+        self.layout.addWidget(self.functionUI,3,1,1,2)
         self.layout.addWidget(QLabel('Selection only'),4,0)
-        self.layout.addWidget(self.selectionUI,4,1)
+        self.layout.addWidget(self.selectionUI,4,1,1,2)
         #self.layout.addWidget(QLabel('Update'),5,0)
         #self.layout.addWidget(self.updateUI,5,1)
         self.layout.addWidget(self.cancelUI,6,0)
@@ -90,7 +89,7 @@ class LSeditor(QDialog):
 
         #Connect signals
 
-        QObject.connect(self.autoNameUI,SIGNAL("stateChanged(int)"),self.nameUI.setEnabled)
+        QObject.connect(self.autoNameUI,SIGNAL("stateChanged(int)"),self.toggleAutoName)
         QObject.connect(self.layerUI,SIGNAL("currentIndexChanged(int)"),self.createName)
         QObject.connect(self.fieldUI,SIGNAL("currentIndexChanged(int)"),self.createName)
         QObject.connect(self.functionUI,SIGNAL("currentIndexChanged(int)"),self.createName)
@@ -99,8 +98,7 @@ class LSeditor(QDialog):
         QObject.connect(self.layerUI,SIGNAL("activated(int)"),self.choosedLayerChanged)
         QObject.connect(self.acceptUI,SIGNAL("pressed()"),self.accept)
         QObject.connect(self.cancelUI,SIGNAL("pressed()"),self.reject)
-        
-        self.createName(0)
+
         self.setLayout(self.layout)
 
     def show(self):
@@ -112,18 +110,25 @@ class LSeditor(QDialog):
     def choosedLayerChanged(self, index):
         self.fieldUI.rebuild( self.layerUI.currentLayer() )
 
-    def createName(self, index):
+    def toggleAutoName(self, index):
         if not self.autoNameUI.checkState():
+            self.nameUI.setEnabled(True)
+        else:
+            self.nameUI.setEnabled(False)
+            self.createName(0)
+
+    def createName(self, index):
+        if self.autoNameUI.checkState():
             func = self.functionUI.currentText()
             field = self.fieldUI.currentText()
             layer = self.layerUI.currentText()
 
             if self.selectionUI.checkState():
-                sel = '[sel]'
+                sel = "'s sel."
             else:
-                sel = '[all]'
+                sel = ''
 
-            name = func + ' of <i>' + field + '</i> in <i>' + layer + '</i> ' + sel
+            name = func + ' of ' + field + ' in ' + layer + sel
 
             self.nameUI.setText(name)
 
