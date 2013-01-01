@@ -23,6 +23,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
+import locale
 
 from LSeditor import LSeditor
 from LScomputers import *
@@ -30,100 +31,200 @@ from LScomputers import *
 
 
 class LSbar(QToolBar):
-    count = 1
+    count = 0
 
-    def __init__(self, iface):
-        name = "LiveView "+ str(LSbar.count)
-        QToolBar.__init__(self, name)
+    def __init__(self, iface, showDialog):
+        QToolBar.__init__(self)
         self.iface = iface
-
-
-        self.dialog = LSeditor(self.iface, name)
-        QObject.connect(self.dialog, SIGNAL('accepted()'), self.dialogAccepted)
-
-        #initWidget
-        self.nameWidget = QLabel(name)
-        self.addWidget( self.nameWidget )
-        self.separatorWidget = QLabel(' : ')
-        self.addWidget( self.separatorWidget )
-        self.displayWidget = QLabel("Click to edit")
-        self.addWidget( self.displayWidget )
-
         LSbar.count+=1
 
+        # LiveStatBar's properties
+        self.name = "LiveStat "+ str(LSbar.count)
+        self.autoName = 0
+        self.layer = None
+        self.fieldName = '$area'
+        self.functionName = 'Sum'
+        self.selectedOnly = 2
+        self.precision = 3
+        self.suffix = ''
+        self.factor = '1'
+        self.separator = 2
+        self.saveWith = 2
+
+        # LiveStatBar's dialog
+        self.dialog = LSeditor(self.iface)
+        QObject.connect(self.dialog, SIGNAL('accepted()'), self.dialogAccepted)
+
+        # We connect the bar to some events that may trigger an update
         QObject.connect(self.iface, SIGNAL('currentLayerChanged(QgsMapLayer*)'), self.layerChanged)
         QObject.connect(self.iface.mapCanvas(), SIGNAL('selectionChanged(QgsMapLayer*)'), self.selectionChanged)
 
-        self.dialog.show()
+
+        # Setup the bar GUI
+        self.setWindowTitle(self.name)
+
+        # Create widgets
+        self.nameWidget = QLabel(self.name);
+        self.separatorWidget = QLabel(' : ')
+        self.displayWidget = QLabel("Click to edit")
+
+        # Layout widgets
+        self.addWidget( self.nameWidget )
+        self.addWidget( self.separatorWidget )
+        self.addWidget( self.displayWidget )
+
+        # We display the dialog at creatin (if required)
+        if showDialog:
+            self.dialog.show(self)
 
 
     def mousePressEvent(self, event):
-        self.dialog.show()
+        # We want the dialog to display on a simple click
+        self.dialog.show(self)
+        
 
     def dialogAccepted(self):
-        self.nameWidget.setText( self.dialog.nameUI.text() )
+        # When the dialog is accepted, we update the bar's attribute to correspond to the dialog's input
+        self.name = self.dialog.nameUI.text()
+        self.autoName = self.dialog.autoNameUI.checkState()
+        self.layer = self.dialog.layerUI.currentLayer()
+        self.fieldName = self.dialog.fieldUI.currentText()
+        self.functionName = self.dialog.functionUI.currentText()
+        self.selectedOnly = self.dialog.selectionUI.checkState()
+        self.precision = self.dialog.precisionUI.value()
+        self.suffix = self.dialog.suffixUI.text()
+        self.factor = self.dialog.factorUI.text()
+        self.separator = self.dialog.separatorUI.checkState()
+        self.saveWith = self.dialog.saveUI.checkState()
+
+        # And we recompute the bar
         self.compute()
 
 
     def layerChanged(self):
-        if self.dialog.layerUI.currentIndex() == 0:
+        # When the active layer changed, we trigger an update (but only if the bar displays stats of the -CURRENT- layer)
+        if self.layer is None:
             self.compute()
     def selectionChanged(self):
-        if self.dialog.selectionUI.checkState():
+        # When the current selection changes, we trigger an update (but only if the bar displays stats of the selection)
+        if self.selectedOnly:
             self.compute()
 
-
-
     def compute(self):
-        #update display values
+        # This recompoutes the bar
+        #QgsMessageLog.logMessage('COMPUTE','LiveStats')
 
+        #Set the name
+        self.nameWidget.setText( self.name )
 
-        layer = self.dialog.layerUI.currentLayer()
-        if layer is None:
-            self.displayWidget.setText('ERROR : no layer...')
-            return
+        #Get the layer.
+        if self.layer is not None:
+            layer = self.layer
+        else:
+            # If the layer is None, it means we display the activeLayer
+            if self.iface.activeLayer() is None:
+                self.displayWidget.setText('NO DATA (select a layer)')
+                return
+            layer = self.iface.activeLayer()
+        
 
-        computation = self.dialog.functionUI.currentText()
-        if computation == 'Count':
+        #Prepare the computer
+        if self.functionName == 'Count':
             computer = LScountComputer()
-        elif computation == 'Sum':
+        elif self.functionName == 'Sum':
             computer = LSsumComputer()
-        elif computation == 'Min':
+        elif self.functionName == 'Min':
             computer = LSminComputer()
-        elif computation == 'Max':
+        elif self.functionName == 'Max':
             computer = LSmaxComputer()
-        elif computation == 'Mean':
+        elif self.functionName == 'Mean':
             computer = LSmeanComputer()
 
-        fieldIndex = layer.fieldNameIndex( self.dialog.fieldUI.currentText() )
+        # Do some weird stuff to get the field and the freatures later on
+        # This is a bit cryptic (I copied it from statist plugin)
+        fieldIndex = layer.fieldNameIndex( self.fieldName )
         layer.select( [ fieldIndex ], QgsRectangle(), True )
 
-        result = 0
-        if self.dialog.selectionUI.checkState():
-            #Use selection
+        #Do the actual computation
+        if self.selectedOnly:
+            # We loop through the selection
             features = layer.selectedFeatures()
             for feature in features:
                 computer.addVal(self.valueForFeature(feature, fieldIndex))
 
         else:
-            #Use all features
+            # We loop through all features
             feature = QgsFeature()
             while layer.nextFeature( feature ):
                 computer.addVal(self.valueForFeature(feature, fieldIndex))
 
-        self.displayWidget.setText(str(computer.result()))
+        # And we finally display the result in the widget
+        result = computer.result()
+        result *= float(self.factor)
+        result = self.formatNumber(result)
+        result = result+self.suffix
+        self.displayWidget.setText(result)
 
 
     def valueForFeature(self, feature, fieldIndex):
+        # This returns the value for a feature and a fieldIndex
 
-        if self.dialog.fieldUI.currentText() == '$area':
+        if self.fieldName == '$area':
             return feature.geometry().area()
-        elif self.dialog.fieldUI.currentText() == '$length':
+        elif self.fieldName == '$length':
             return feature.geometry().length ()
-        #elif self.dialog.fieldUI.currentText() == '$perimeter':
-        #    return feature.geometry().length ()
         else:
-            return float( feature.attributeMap()[ fieldIndex ].toDouble()[ 0 ] )#I dont understand this line (copied from statist plugin)
+            # This is a bit cryptic (I copied it from statist plugin)
+            return float( feature.attributeMap()[ fieldIndex ].toDouble()[ 0 ] )
+
+
+    def save(self):
+        # This returns this bar's attributes as a QString to be stored in the file
+        returnStringList = QStringList()
+
+        returnStringList.append( self.name )
+        returnStringList.append( str(self.autoName) ) 
+        if self.layer is None:
+            returnStringList.append( '' )
+        else:
+            returnStringList.append( self.layer.id() )
+        returnStringList.append( self.fieldName )
+        returnStringList.append( self.functionName )
+        returnStringList.append( str(self.selectedOnly) ) 
+        returnStringList.append( str(self.precision) )
+        returnStringList.append( self.suffix )
+        returnStringList.append( self.factor )
+        returnStringList.append( str(self.separator) )
+
+        return returnStringList.join('*|*')
+
+    def load(self, string):
+        # This sets this bar's attributes from a QString to be loaded
+        loadStringList = string.split('*|*')
+
+        self.name = loadStringList[0]
+        self.autoName = int(loadStringList[1])
+        self.layer = None
+        for l in self.iface.legendInterface().layers():
+            if l.id() == loadStringList[2]:
+                self.layer = l
+        self.fieldName = loadStringList[3]
+        self.functionName = loadStringList[4]
+        self.selectedOnly = int(loadStringList[5])
+        self.precision = int(loadStringList[6])
+        self.suffix = loadStringList[7]
+        self.factor = loadStringList[8]
+        self.separator = int(loadStringList[9])
+        self.saveWith = 2
+
+        self.compute()
+
+    def formatNumber(self, number):
+        if self.precision == 0:
+            result = locale.format('%d', number, self.separator)
+        else:
+            result = locale.format('%.'+str(self.precision)+'f', number, self.separator)
+        return result
 
 
 

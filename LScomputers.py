@@ -75,4 +75,7 @@ class LSmeanComputer(LScomputer):
         self.val += val
         self.count += 1
     def result(self):
-        return self.val / self.count
+        if self.count == 0:
+            return 'div by 0 !'
+        else:
+            return self.val / self.count

@@ -39,7 +39,7 @@ def icon():
 
 
 def qgisMinimumVersion():
-    return "1.0"
+    return "1.8"
 
 def author():
     return "Olivier Dalang"

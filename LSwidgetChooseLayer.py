@@ -33,33 +33,31 @@ class LSwidgetChooseLayer(QComboBox):
 
         self.eligibleLayers = []
 
-    def rebuild(self):
+    def rebuild(self, previousLayer):
+
         self.eligibleLayers = []
         for layer in self.iface.legendInterface().layers():
             if layer.type() == QgsMapLayer.VectorLayer:
                 self.eligibleLayers.append(layer)
 
-        # Rebuild layer menu
-        previousChoosenLayer = self.currentText()
 
+        previousIndex = 0
         self.blockSignals(True)
         self.clear()   
-        self.addItem('-active-')
+        self.addItem('[active]')
+        i=1
         for layer in self.eligibleLayers:
             self.addItem(layer.name())
+            if layer is previousLayer:
+                previousIndex = i
+            i+=1
         self.blockSignals(False)
 
-        search = self.findText(previousChoosenLayer)
-        self.setCurrentIndex( max(0,search) )
+        self.setCurrentIndex( previousIndex )
 
     def currentLayer(self):
-        #QgsMessageLog.logMessage('Current layer...','LiveStats')
-        #QgsMessageLog.logMessage(str(self.iface.activeLayer().type()),'LiveStats')
         index = self.currentIndex()
         if index > 0:
             return self.eligibleLayers[index-1]
-        else:            
-            if self.iface.activeLayer() is not None and self.iface.activeLayer().type() == QgsMapLayer.VectorLayer: 
-                return self.iface.activeLayer()
-            else:
-                return None
+        else: 
+            return None

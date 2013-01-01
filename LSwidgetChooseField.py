@@ -33,11 +33,7 @@ class LSwidgetChooseField(QComboBox):
 
 
 
-    def rebuild(self, layer):
-
-        # Rebuild fields menu
-        previousChoosenField = self.currentText()
-
+    def rebuild(self, layer, previousFieldName):
 
         self.blockSignals(True)
         self.clear() 
@@ -50,5 +46,6 @@ class LSwidgetChooseField(QComboBox):
                 self.addItem(fields[key].name())
         self.blockSignals(False)
 
-        search = self.findText(previousChoosenField)
-        self.setCurrentIndex( max(0,search) )
+        if previousFieldName is not None:
+            search = self.findText(previousFieldName)
+            self.setCurrentIndex( max(0,search) )

@@ -22,7 +22,7 @@ https://github.com/redlegoreng/liveStats/issues
 
 
 ## Version history ##
-- 2013-01-01 - version 0.0 : work started
+- 2013-01-01 - version 0.1 : first version (still very sketchy)
 
 
 ## Contribute ##
