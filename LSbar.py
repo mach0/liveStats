@@ -23,7 +23,6 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
-import locale
 
 from LSeditor import LSeditor
 from LScomputers import *
@@ -37,6 +36,7 @@ class LSbar(QToolBar):
         QToolBar.__init__(self)
         self.iface = iface
         LSbar.count+=1
+
 
         # LiveStatBar's properties
         self.name = "LiveStat "+ str(LSbar.count)
@@ -119,8 +119,6 @@ class LSbar(QToolBar):
         # This recompoutes the bar
         #QgsMessageLog.logMessage('COMPUTE','LiveStats')
 
-        #Set the name
-        self.nameWidget.setText( self.name )
 
         #Get the layer.
         if self.layer is not None:
@@ -169,10 +167,15 @@ class LSbar(QToolBar):
             while layer.nextFeature( feature ):
                 computer.addVal(self.valueForFeature(feature, fieldIndex))
 
+        
         # And we finally display the result in the widget
+        self.locale = QLocale()
+        if not self.separator:
+            self.locale.setNumberOptions(QLocale.OmitGroupSeparator)
+
         result = computer.result()
         result *= float(self.factor)
-        result = self.formatNumber(result)
+        result = self.locale.toString(result, 'f', self.precision)
         result = result+self.suffix
         self.displayWidget.setText(result)
 
@@ -180,7 +183,9 @@ class LSbar(QToolBar):
 
 
     def setText(self, text):
-        self.displayWidget.setText(text + ' : ')
+        self.nameWidget.setText( self.name + ' : ' )
+        self.displayWidget.setText(text)
+        
         #Resize the widget
         self.setMinimumSize( self.sizeHint() )
 
@@ -241,13 +246,6 @@ class LSbar(QToolBar):
         #self.position = int(loadStringList[11])
 
         self.compute()
-
-    def formatNumber(self, number):
-        if self.precision == 0:
-            result = locale.format('%d', number, self.separator)
-        else:
-            result = locale.format('%.'+str(self.precision)+'f', number, self.separator)
-        return result
 
 
 

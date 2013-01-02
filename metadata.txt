@@ -12,7 +12,7 @@
 name=Live Statistics
 qgisMinimumVersion=1.8
 description=LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback.
-version=0.1
+version=0.11
 author=Olivier Dalang
 email=olivier.dalang@gmail.com
 
@@ -22,6 +22,7 @@ email=olivier.dalang@gmail.com
 
 # Uncomment the following line and add your changelog entries:
 changelog=2013-01-01 - version 0.1 : first version (still very sketchy)
+changelog=2013-01-02 - version 0.11 : fixed a bug with locale
 
 # tags are comma separated with spaces allowed
 tags=statistics,live

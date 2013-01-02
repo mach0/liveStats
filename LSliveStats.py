@@ -23,7 +23,6 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
-import locale
 
 import resources_rc
 
@@ -33,8 +32,6 @@ from LSbar import LSbar
 class LSliveStats:
 
     def __init__(self, iface):
-
-        locale.setlocale(locale.LC_ALL, "")
 
         QgsMessageLog.logMessage('Loading...','LiveStats')
 
@@ -82,7 +79,7 @@ class LSliveStats:
 
     def addBar(self, lsBar):
         # This adds a bar to the project
-        self.iface.mainWindow().addToolBar(Qt.BottomToolBarArea, lsBar)
+        self.iface.mainWindow().addToolBar(Qt.RightToolBarArea, lsBar)
         #self.iface.mainWindow().addToolBar(lsBar.position, lsBar)
         self.statsBars.append(lsBar)
         QObject.connect(lsBar.dialog, SIGNAL('accepted()'), self.saveToFile)

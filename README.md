@@ -24,6 +24,7 @@ https://github.com/redlegoreng/liveStats/issues
 
 ## Version history ##
 - 2013-01-01 - version 0.1 : first version (still very sketchy)
+- 2013-01-02 - version 0.11 : fixed a bug with locale
 
 
 ## Contribute ##
