@@ -32,9 +32,10 @@ from LScomputers import *
 class LSbar(QToolBar):
     count = 0
 
-    def __init__(self, iface, showDialog):
+    def __init__(self, iface, mainClass, showDialog):
         QToolBar.__init__(self)
         self.iface = iface
+        self.mainClass = mainClass
         LSbar.count+=1
 
 
@@ -43,6 +44,7 @@ class LSbar(QToolBar):
         self.autoName = 0
         self.layer = None
         self.fieldName = '$area'
+        self.filter = ''
         self.functionName = 'Sum'
         self.selectedOnly = 2
         self.precision = 3
@@ -86,30 +88,46 @@ class LSbar(QToolBar):
         # We want the dialog to display on a simple click
         self.dialog.show(self)
         
-
     def dialogAccepted(self):
-        # When the dialog is accepted, we update the bar's attribute to correspond to the dialog's input
-        self.name = self.dialog.nameUI.text()
-        self.autoName = self.dialog.autoNameUI.checkState()
-        self.layer = self.dialog.layerUI.currentLayer()
-        self.fieldName = self.dialog.fieldUI.currentText()
-        self.functionName = self.dialog.functionUI.currentText()
-        self.selectedOnly = self.dialog.selectionUI.checkState()
-        self.precision = self.dialog.precisionUI.value()
-        self.suffix = self.dialog.suffixUI.text()
-        self.factor = self.dialog.factorUI.text()
-        self.separator = self.dialog.separatorUI.checkState()
-        self.saveWith = self.dialog.saveUI.checkState()
 
-        self.setObjectName(self.name)
+        # If the clone box is checked, we create a new bar and apply the settings on the new bar
+        makeClone = self.dialog.cloneUI.checkState()
+        if makeClone:
+            newStatsBar = LSbar(self.iface, self.mainClass, False)
+            self.mainClass.addBar(newStatsBar)
+            bar = newStatsBar
+        else:
+            bar = self
+
+        # When the dialog is accepted, we update the bar's attribute to correspond to the dialog's input
+        bar.name = self.dialog.nameUI.text()
+        bar.autoName = self.dialog.autoNameUI.checkState()
+        bar.layer = self.dialog.layerUI.currentLayer()
+        bar.fieldName = self.dialog.fieldUI.currentText()
+        bar.filter = self.dialog.filterUI.text()
+        bar.functionName = self.dialog.functionUI.currentText()
+        bar.selectedOnly = self.dialog.selectionUI.checkState()
+        bar.precision = self.dialog.precisionUI.value()
+        bar.suffix = self.dialog.suffixUI.text()
+        bar.factor = self.dialog.factorUI.text()
+        bar.separator = self.dialog.separatorUI.checkState()
+        bar.saveWith = self.dialog.saveUI.checkState()
+
+        bar.setObjectName(self.name)
+
         # And we recompute the bar
         self.compute()
+        if makeClone:
+            # If it's a clone, we update it 
+            bar.compute()
+        
 
 
     def layerChanged(self):
         # When the active layer changed, we trigger an update (but only if the bar displays stats of the -CURRENT- layer)
         if self.layer is None:
             self.compute()
+    
     def selectionChanged(self):
         # When the current selection changes, we trigger an update (but only if the bar displays stats of the selection)
         if self.selectedOnly:
@@ -119,90 +137,133 @@ class LSbar(QToolBar):
         # This recompoutes the bar
         #QgsMessageLog.logMessage('COMPUTE','LiveStats')
 
+        try:
+            #Get the layer.
+            if self.layer is not None:
+                layer = self.layer
+            else:
+                # If the layer is None, it means we display the activeLayer
+                activeLayer = self.iface.activeLayer()
+                if activeLayer is None or activeLayer.type() != QgsMapLayer.VectorLayer:
+                    raise NoLayerError()
+                layer = activeLayer
 
-        #Get the layer.
-        if self.layer is not None:
-            layer = self.layer
-        else:
-            # If the layer is None, it means we display the activeLayer
-            activeLayer = self.iface.activeLayer()
-            if activeLayer is None or activeLayer.type() != QgsMapLayer.VectorLayer:
-                self.setText('NO LAYER')
-                return
-            layer = activeLayer
+           
 
-       
+            #Prepare the computer
+            if self.functionName == 'Count':
+                computer = LScountComputer()
+            elif self.functionName == 'Sum':
+                computer = LSsumComputer()
+            elif self.functionName == 'Min':
+                computer = LSminComputer()
+            elif self.functionName == 'Max':
+                computer = LSmaxComputer()
+            elif self.functionName == 'Mean':
+                computer = LSmeanComputer()
+            else:
+                raise NoComputerError()
 
-        #Prepare the computer
-        if self.functionName == 'Count':
-            computer = LScountComputer()
-        elif self.functionName == 'Sum':
-            computer = LSsumComputer()
-        elif self.functionName == 'Min':
-            computer = LSminComputer()
-        elif self.functionName == 'Max':
-            computer = LSmaxComputer()
-        elif self.functionName == 'Mean':
-            computer = LSmeanComputer()
+            # Do some weird stuff to get the field and the freatures later on
+            # This is a bit cryptic (I copied it from statist plugin)
+            computeFieldIndex = layer.fieldNameIndex( self.fieldName )
+            allFieldsMap = layer.pendingFields()
 
-        # Do some weird stuff to get the field and the freatures later on
-        # This is a bit cryptic (I copied it from statist plugin)
-        fieldIndex = layer.fieldNameIndex( self.fieldName )
-        layer.select( [ fieldIndex ], QgsRectangle(), True )
+            if self.filter != '':
+                expression = QgsExpression(self.filter)
+                expression.prepare(allFieldsMap)
+                if expression.hasParserError():
+                    raise ParserError(expression.parserErrorString())
+            else:
+                expression = None
 
-        if self.fieldName not in ['$area', '$length'] and fieldIndex == -1:
-            self.setText('NO FIELD')
+            if self.fieldName not in ['$area', '$length'] and computeFieldIndex == -1:
+                raise NoFieldError()
+
+            #Do the actual computation
+            if self.selectedOnly:
+                # We loop through the selection
+                features = layer.selectedFeatures()
+                for feature in features:
+                    self.valueForFeature(feature, computer, computeFieldIndex, expression)
+
+            else:
+                layer.select( range(0,len(allFieldsMap)), QgsRectangle(), True )
+                feature = QgsFeature()
+                while layer.nextFeature( feature ):
+                    self.valueForFeature(feature, computer, computeFieldIndex, expression)
+
+            result = computer.result()
+
+            
+
+            # And we finally display the result in the widget
+            self.locale = QLocale()
+            if not self.separator:
+                self.locale.setNumberOptions(QLocale.OmitGroupSeparator)
+            result *= float(self.factor)
+            result = self.locale.toString(result, 'f', self.precision)
+            result = result+self.suffix
+            self.displayWidget.setText(result)
+
+            self.setText(result)
+
+        except NoLayerError as e:
+            self.setText('NO LAYER !')
             return
-
-        #Do the actual computation
-        if self.selectedOnly:
-            # We loop through the selection
-            features = layer.selectedFeatures()
-            for feature in features:
-                computer.addVal(self.valueForFeature(feature, fieldIndex))
-
-        else:
-            # We loop through all features
-            feature = QgsFeature()
-            while layer.nextFeature( feature ):
-                computer.addVal(self.valueForFeature(feature, fieldIndex))
-
-        
-        # And we finally display the result in the widget
-        self.locale = QLocale()
-        if not self.separator:
-            self.locale.setNumberOptions(QLocale.OmitGroupSeparator)
-
-        result = computer.result()
-        result *= float(self.factor)
-        result = self.locale.toString(result, 'f', self.precision)
-        result = result+self.suffix
-        self.displayWidget.setText(result)
-
-        self.setText(result)
+        except ParserError as e:
+            self.setText('PARSER ERROR : '+str(e))
+            return
+        except NoComputerError as e:
+            self.setText('NO COMPUTER !')
+            return
+        except NoFieldError as e:
+            self.setText('NO FIELD !')
+            return
+        except NoGeometryError as e:
+            self.setText('NO GEOMETRY !')
+            return
+        except EvalError as e:
+            self.setText('EVAL ERROR : '+str(e))
+            return
 
 
     def setText(self, text):
-        self.nameWidget.setText( self.name + ' : ' )
+        self.nameWidget.setText( self.name )
         self.displayWidget.setText(text)
         
         #Resize the widget
         self.setMinimumSize( self.sizeHint() )
 
+        #Repain the mainWindow (prevents display glitches)
+        self.iface.mainWindow().update()
 
+    def valueForFeature(self, feature, computer, computeFieldIndex, expression):
+        # This returns the value for a feature and a computeFieldIndex
 
+        filteredOut = False
+        if expression is not None:
+            filteredOut = expression.evaluate(feature).toBool()
+            if expression.hasEvalError():
+                raise EvalError(expression.evalErrorString())
+        if filteredOut:
+            return
 
-    def valueForFeature(self, feature, fieldIndex):
-        # This returns the value for a feature and a fieldIndex
 
         if self.fieldName == '$area':
-            return feature.geometry().area()
+            if feature.geometry() is None:
+                raise NoGeometryError()
+            val = feature.geometry().area()
+
         elif self.fieldName == '$length':
-            return feature.geometry().length ()
+            if feature.geometry() is None:
+                raise NoGeometryError()
+            val = feature.geometry().length()  
         else:
             # This is a bit cryptic (I copied it from statist plugin)
-            return float( feature.attributeMap()[ fieldIndex ].toDouble()[ 0 ] )
+            val = float( feature.attributeMap()[ computeFieldIndex ].toDouble()[ 0 ] )
 
+        computer.addVal(  val  )
 
     def save(self):
         # This returns this bar's attributes as a QString to be stored in the file
@@ -215,6 +276,7 @@ class LSbar(QToolBar):
         else:
             returnStringList.append( self.layer.id() )
         returnStringList.append( self.fieldName )
+        returnStringList.append( self.filter )
         returnStringList.append( self.functionName )
         returnStringList.append( str(self.selectedOnly) ) 
         returnStringList.append( str(self.precision) )
@@ -236,16 +298,38 @@ class LSbar(QToolBar):
             if l.id() == loadStringList[2]:
                 self.layer = l
         self.fieldName = loadStringList[3]
-        self.functionName = loadStringList[4]
-        self.selectedOnly = int(loadStringList[5])
-        self.precision = int(loadStringList[6])
-        self.suffix = loadStringList[7]
-        self.factor = loadStringList[8]
-        self.separator = int(loadStringList[9])
+        self.filter = loadStringList[4]
+        self.functionName = loadStringList[5]
+        self.selectedOnly = int(loadStringList[6])
+        self.precision = int(loadStringList[7])
+        self.suffix = loadStringList[8]
+        self.factor = loadStringList[9]
+        self.separator = int(loadStringList[10])
         self.saveWith = 2
-        #self.position = int(loadStringList[11])
+        #self.position = int(loadStringList[12])
 
         self.compute()
+
+class NoLayerError(Exception):
+    pass
+class ParserError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
+class NoComputerError(Exception):
+    pass
+class NoGeometryError(Exception):
+    pass
+class NoFieldError(Exception):
+    pass
+class EvalError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
+
+
 
 
 

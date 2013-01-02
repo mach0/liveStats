@@ -49,6 +49,7 @@ class LSeditor(QDialog):
         self.layerUI = LSwidgetChooseLayer(self.iface)
         self.fieldUI = LSwidgetChooseField(self.iface)
         self.functionUI = QComboBox()
+        self.filterUI = QLineEdit()
         self.selectionUI = QCheckBox()
 
         self.precisionUI = QSpinBox()
@@ -58,6 +59,7 @@ class LSeditor(QDialog):
 
         self.saveUI = QCheckBox()
         self.acceptUI = QPushButton('OK')
+        self.cloneUI = QCheckBox('Copy')
         self.cancelUI = QPushButton('Cancel')
 
 
@@ -84,12 +86,14 @@ class LSeditor(QDialog):
         self.layout.addWidget(self.layerUI,1,1,1,2)
         self.layout.addWidget(QLabel('Field'),2,0)
         self.layout.addWidget(self.fieldUI,2,1,1,2)
-        self.layout.addWidget(QLabel('Function'),3,0)
-        self.layout.addWidget(self.functionUI,3,1,1,2)
-        self.layout.addWidget(QLabel('Selection only'),4,0)
-        self.layout.addWidget(self.selectionUI,4,1,1,2)
+        self.layout.addWidget(QLabel('Filter (where)'),3,0)
+        self.layout.addWidget(self.filterUI,3,1,1,2)
+        self.layout.addWidget(QLabel('Function'),4,0)
+        self.layout.addWidget(self.functionUI,4,1,1,2)
+        self.layout.addWidget(QLabel('Selection only'),5,0)
+        self.layout.addWidget(self.selectionUI,5,1,1,2)
 
-        self.layout.addWidget(QLabel('Precision, suffix, factor, separator'),5,0)
+        self.layout.addWidget(QLabel('Precision, suffix, factor, separator'),6,0)
         subLayout = QGridLayout()
         subLayout.addWidget(self.precisionUI,0,0)
         subLayout.addWidget(self.suffixUI,0,1)
@@ -99,12 +103,13 @@ class LSeditor(QDialog):
         subLayout.setColumnStretch(1,1)
         subLayout.setColumnStretch(2,1)
         subLayout.setColumnStretch(3,0)
-        self.layout.addLayout(subLayout,5,1,1,2)
+        self.layout.addLayout(subLayout,6,1,1,2)
 
         self.layout.addWidget(QLabel('Save with project'),8,0)
         self.layout.addWidget(self.saveUI,8,1,1,2)
         self.layout.addWidget(self.cancelUI,9,0)
-        self.layout.addWidget(self.acceptUI,9,1,1,2)
+        self.layout.addWidget(self.acceptUI,9,1)
+        self.layout.addWidget(self.cloneUI,9,2)
 
 
         #Connect signals
@@ -112,6 +117,7 @@ class LSeditor(QDialog):
         QObject.connect(self.autoNameUI,SIGNAL("stateChanged(int)"),self.toggleAutoName)
         QObject.connect(self.layerUI,SIGNAL("currentIndexChanged(int)"),self.createName)
         QObject.connect(self.fieldUI,SIGNAL("currentIndexChanged(int)"),self.createName)
+        QObject.connect(self.filterUI,SIGNAL("textChanged(QString)"),self.createName)
         QObject.connect(self.functionUI,SIGNAL("currentIndexChanged(int)"),self.createName)
         QObject.connect(self.selectionUI,SIGNAL("stateChanged(int)"),self.createName)
 
@@ -129,6 +135,7 @@ class LSeditor(QDialog):
         self.autoNameUI.setCheckState( bar.autoName )
         self.layerUI.rebuild( bar.layer )
         self.fieldUI.rebuild( bar.layer, bar.fieldName )
+        self.filterUI.setText( bar.filter )
         self.functionUI.setCurrentIndex( max(0,self.functionUI.findText(bar.functionName)) )
         self.selectionUI.setCheckState( bar.selectedOnly )
         self.precisionUI.setValue( bar.precision )
@@ -158,13 +165,16 @@ class LSeditor(QDialog):
             func = self.functionUI.currentText()
             field = self.fieldUI.currentText()
             layer = self.layerUI.currentText()
+            filt = self.filterUI.text()
 
             if self.selectionUI.checkState():
-                sel = "'s sel."
+                sel = "'s selection"
             else:
                 sel = ''
+            if filt != '':
+                filt = ' ('+filt+')'
 
-            name = func + ' of ' + field + ' in ' + layer + sel
+            name = func + ' of ' + field + ' in ' + layer + sel + filt + ' :'
 
             self.nameUI.setText(name)
 

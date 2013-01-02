@@ -33,7 +33,7 @@ class LSliveStats:
 
     def __init__(self, iface):
 
-        QgsMessageLog.logMessage('Loading...','LiveStats')
+        QgsMessageLog.logMessage('Loading the plugin...','LiveStats')
 
         # Save reference to the QGIS interface
         self.iface = iface
@@ -74,7 +74,7 @@ class LSliveStats:
 
     def createBar(self):
         #This creates a default new bar
-        newStatsBar = LSbar(self.iface, True)
+        newStatsBar = LSbar(self.iface, self, True)
         self.addBar(newStatsBar)
 
     def addBar(self, lsBar):
@@ -96,7 +96,7 @@ class LSliveStats:
 
         loadedStringsLists = QgsProject.instance().readListEntry('LiveStats','SavedStats')[0]
         for loadString in loadedStringsLists:
-            newStatsBar = LSbar(self.iface, False)
+            newStatsBar = LSbar(self.iface, self, False)
             newStatsBar.load(loadString)
             self.addBar(newStatsBar)
 
