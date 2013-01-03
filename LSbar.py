@@ -148,7 +148,6 @@ class LSbar(QToolBar):
                     raise NoLayerError()
                 layer = activeLayer
 
-           
 
             #Prepare the computer
             if self.functionName == 'Count':
@@ -164,14 +163,13 @@ class LSbar(QToolBar):
             else:
                 raise NoComputerError()
 
-            # Do some weird stuff to get the field and the freatures later on
-            # This is a bit cryptic (I copied it from statist plugin)
+            #Get the field index for the field that is being comuputed
             computeFieldIndex = layer.fieldNameIndex( self.fieldName )
-            allFieldsMap = layer.pendingFields()
+
 
             if self.filter != '':
                 expression = QgsExpression(self.filter)
-                expression.prepare(allFieldsMap)
+                expression.prepare(layer.pendingFields())
                 if expression.hasParserError():
                     raise ParserError(expression.parserErrorString())
             else:
@@ -180,22 +178,29 @@ class LSbar(QToolBar):
             if self.fieldName not in ['$area', '$length'] and computeFieldIndex == -1:
                 raise NoFieldError()
 
-            #Do the actual computation
-            if self.selectedOnly:
-                # We loop through the selection
-                features = layer.selectedFeatures()
-                for feature in features:
-                    self.valueForFeature(feature, computer, computeFieldIndex, expression)
+            def getFeatures():
+                if self.selectedOnly:
+                    return layer.selectedFeatures()
+                else:
+                    # Select all the features
+                    layer.select( layer.pendingAllAttributesList() )
+                    # The layer is an iterator that returns a QgsFeature on next(), so just return the layer
+                    return layer
 
-            else:
-                layer.select( range(0,len(allFieldsMap)), QgsRectangle(), True )
-                feature = QgsFeature()
-                while layer.nextFeature( feature ):
-                    self.valueForFeature(feature, computer, computeFieldIndex, expression)
+            # Loop the features.
+            for feature in getFeatures():
 
-            result = computer.result()
+                if expression is not None:
+                    result = expression.evaluate(feature, layer.pendingFields())
+                    if expression.hasEvalError():
+                          raise EvalError(expression.evalErrorString())
+                          continue
+                    if not result.toBool():
+                        continue
+                self.valueForFeature(feature, computer, computeFieldIndex)
 
-            
+
+            result = computer.result()            
 
             # And we finally display the result in the widget
             self.locale = QLocale()
@@ -228,6 +233,7 @@ class LSbar(QToolBar):
             return
 
 
+
     def setText(self, text):
         self.nameWidget.setText( self.name )
         self.displayWidget.setText(text)
@@ -238,25 +244,19 @@ class LSbar(QToolBar):
         #Repain the mainWindow (prevents display glitches)
         self.iface.mainWindow().update()
 
-    def valueForFeature(self, feature, computer, computeFieldIndex, expression):
+    def valueForFeature(self, feature, computer, computeFieldIndex):
         # This returns the value for a feature and a computeFieldIndex
-
-        filteredOut = False
-        if expression is not None:
-            filteredOut = expression.evaluate(feature).toBool()
-            if expression.hasEvalError():
-                raise EvalError(expression.evalErrorString())
-        if filteredOut:
-            return
-
-
         if self.fieldName == '$area':
             if feature.geometry() is None:
+                # This happens for instance when a CSV layer is selected.
+                # They are considered as vector layer (!!) but their features have no geometry
                 raise NoGeometryError()
             val = feature.geometry().area()
 
         elif self.fieldName == '$length':
             if feature.geometry() is None:
+                # This happens for instance when a CSV layer is selected.
+                # They are considered as vector layer (!!) but their features have no geometry
                 raise NoGeometryError()
             val = feature.geometry().length()  
         else:
@@ -316,7 +316,7 @@ class ParserError(Exception):
     def __init__(self, msg):
         self.msg = msg
     def __str__(self):
-        return repr(self.msg)
+        return str(self.msg)
 class NoComputerError(Exception):
     pass
 class NoGeometryError(Exception):
@@ -327,7 +327,7 @@ class EvalError(Exception):
     def __init__(self, msg):
         self.msg = msg
     def __str__(self):
-        return repr(self.msg)
+        return str(self.msg)
 
 
 

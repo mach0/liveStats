@@ -42,7 +42,22 @@ class LSliveStats:
         self.statsBars = []
 
         # We have to reload the list when a project is opened/closed
-        QObject.connect(self.iface, SIGNAL("projectRead()"), self.loadFromFile) 
+        QObject.connect(self.iface, SIGNAL("projectRead()"), self.loadFromFile)
+
+        # TODO : this is triggered at the moment the file is read,
+        # and the layer then load one after the other
+        # This makes the liveStats to compute for every layer at loading,
+        # which is useless and slows down the loading
+
+        # it is necessary to remove the stats bars when the project is closed
+        # and to load them once it is completely loaded only
+
+        # is this possible ?
+
+        # Is this better?
+        #QObject.connect(self.iface, SIGNAL("initializationCompleted()"), self.loadFromFile) 
+
+
 
         #w And we load from file (this should only be usefull if the plugin is loaded when a file is already opened)
         self.loadFromFile()
