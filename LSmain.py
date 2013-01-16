@@ -66,35 +66,48 @@ class LSmain:
 
     def initGui(self):
         # LiveStats Action
-        # Create action that will start plugin configuration
+
+        # Create actions
         self.action = QAction( QIcon(":/plugins/livestats/icon.png"), u"Live Statistics", self.iface.mainWindow() )
-        # connect the action to the createBar method
+        self.helpAction = QAction( QIcon(":/plugins/livestats/about.png"), u"Help", self.iface.mainWindow())
+        self.hideAllAction = QAction( u"Hide all LiveStats", self.hideAll())
+        self.showAllAction = QAction( u"Show all LiveStats", self.showAll())
+
+        # Connect the actions
         QObject.connect(self.action, SIGNAL("triggered()"), self.createBar)
+        QObject.connect(self.helpAction, SIGNAL("triggered()"), self.showHelp)
+        QObject.connect(self.hideAllAction, SIGNAL("triggered()"), self.hideAll)
+        QObject.connect(self.showAllAction, SIGNAL("triggered()"), self.showAll)
+
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)
         self.iface.addPluginToMenu(u"&Live Statistics", self.action)
-
-        self.initHelp()
-
-
-    def initHelp(self):
-        # Help Action
-        # Create action 
-        self.helpAction = QAction( QIcon(":/plugins/livestats/about.png"), u"Help", self.iface.mainWindow())
-        # connect the action 
-        QObject.connect(self.helpAction, SIGNAL("triggered()"), self.showHelp)
-        # Add menu item
         self.iface.addPluginToMenu(u"&Live Statistics", self.helpAction)
+        self.iface.addPluginToMenu(u"&Live Statistics", self.showAllAction)
+        self.iface.addPluginToMenu(u"&Live Statistics", self.hideAllAction)
+
+
 
     def showHelp(self):
         # Simply show the help window
         self.aboutWindow = LSaboutWindow()
+
+    def showAll(self):
+        # Simply show the help window
+        for statsBar in self.statsBars:
+            statsBar.show()
+    def hideAll(self):
+        # Simply show the help window
+        for statsBar in self.statsBars:
+            statsBar.hide()
 
 
     def unload(self):
         # Remove the plugin menu item and icon
         self.iface.removePluginMenu(u"&Live Statistics", self.action)
         self.iface.removePluginMenu(u"&Live Statistics", self.helpAction)
+        self.iface.removePluginMenu(u"&Live Statistics", self.showAllAction)
+        self.iface.removePluginMenu(u"&Live Statistics", self.hideAllAction)
         self.iface.removeToolBarIcon(self.action)
         self.removeAllBars()
 

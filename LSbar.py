@@ -38,9 +38,11 @@ class LSbar(QToolBar):
         self.mainClass = mainClass
         LSbar.count+=1
 
+        #self.setToolTip('test')
+
 
         # LiveStatBar's properties
-        self.name = "LiveStat %i : " % LSbar.count
+        self.name = "LiveStat %i" % LSbar.count
         self.autoName = 0
         self.layer = None
         self.fieldName = '$area'
@@ -81,10 +83,13 @@ class LSbar(QToolBar):
         self.setMinimumSize( self.sizeHint() )
 
 
-
-        # We display the dialog at creatin (if required)
+        # We display the dialog at creation (if required)
         if showDialog:
             self.dialog.show(self)
+
+    def showEvent(self, QShowEvent):
+        QToolBar.showEvent(self, QShowEvent)
+        self.compute()
 
 
     def mousePressEvent(self, event):
@@ -115,7 +120,7 @@ class LSbar(QToolBar):
         bar.factor = self.dialog.factorUI.text()
         bar.separator = self.dialog.separatorUI.checkState()
 
-        bar.setObjectName(self.name)
+        bar.setWindowTitle('LiveStat "'+bar.name+'"')
 
         # And we recompute the bar
         self.compute()
@@ -124,19 +129,17 @@ class LSbar(QToolBar):
             bar.compute()
 
     def dialogDelete(self):
-        self.mainClass.removeBar(self)
-
-        
+        self.mainClass.removeBar(self)        
 
 
     def layerChanged(self):
         # When the active layer changed, we trigger an update (but only if the bar displays stats of the -CURRENT- layer)
-        if self.layer is None:
+        if self.isVisible() and self.layer is None:
             self.compute()
     
     def selectionChanged(self):
         # When the current selection changes, we trigger an update (but only if the bar displays stats of the selection)
-        if self.selectedOnly:
+        if self.isVisible() and self.selectedOnly:
             self.compute()
 
     def compute(self):
@@ -240,9 +243,10 @@ class LSbar(QToolBar):
             return
 
 
+        
 
     def setText(self, text):
-        self.nameWidget.setText( self.name )
+        self.nameWidget.setText( self.name + ' : ' )
         self.displayWidget.setText(text)
 
         #Resize the widget
@@ -335,6 +339,8 @@ class LSbar(QToolBar):
         except IndexError as e:
             # On plugin update, if attributes are added, this allows to load as much as possible... Remaining attributes will be defaults
             pass
+
+        self.setWindowTitle('LiveStat "'+self.name+'"')
 
         self.compute()
 

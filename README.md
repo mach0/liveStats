@@ -18,6 +18,8 @@ Click on the LiveStats palette to modify it's settings again. You can add as man
 
 The LiveStats automatically update when the selection changes (if "Selection only" is checked), when the active layer changes (if layer is set to "[active]"), when modified (by clicking on it), or when the project is opened.
 
+You can show/hide a LiveStats as you would do for any ToolBar (eg. by right-clicking in an empty space of the interface). You can toggle all LiveStat's visibiliy via the plugin menu (show/hide all LiveStats).
+
 ### Configuration ###
 
 - **Name** : Enter the display name of the statistic. You can check the box on the right to have an automatic name.
@@ -27,7 +29,7 @@ The LiveStats automatically update when the selection changes (if "Selection onl
 - **Function** : Choose which statistic function you want to use. **Note that "count" simply counts the items, includings Null values** (this will be changed).
 - **Selection only** : Check this if you want to compute statistics of the selection only. Leaving this unchecked will compute the statistics of the whole layer.
 - **Precision...** : Enter the number of decimals, the suffix (usefull to specify a display unit), the factor (usefull to convert to a specific unit) and whether thousands separators should be shown
-- **Save with project** : Check this to have the statistic saved into the project file and be reloaded next time you open it. Unchecking this and reloading the project is currently the only way to delete a LiveStat.
+- **Delete** : Press this to delete the LiveStat. This can't be undone !
 - **Copy** : If this is checked when clicking OK, the LiveStat will be copied into a new one, and the original one will remain untouched.
 
 
@@ -47,6 +49,9 @@ Or send me some feedback at : olivier.dalang@gmail.com
     - ability to clone a LiveStat toolbar
 - 2013-01-15 - version 0.3 :
     - added help (via the plugin menu)
+    - store floating palettes positions
+    - added hide/show all
+    - added delete button
     - fixed a small bug where there was a NoGeometry error under certain circumstances
     - fixed clone checkbox staying checked
 
