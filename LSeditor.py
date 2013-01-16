@@ -30,12 +30,13 @@ from LSwidgetChooseLayer import LSwidgetChooseLayer
 
 class LSeditor(QDialog):
 
-    def __init__(self, iface):
+    def __init__(self, iface, bar):
         QDialog.__init__(self)
 
         self.debugUI = QTextBrowser()
 
         self.iface = iface
+        self.bar = bar
 
         self.setModal(True)
 
@@ -59,10 +60,13 @@ class LSeditor(QDialog):
         self.factorUI = QLineEdit()
         self.separatorUI = QCheckBox()
 
-        self.saveUI = QCheckBox()
+        #self.saveUI = QCheckBox()
         self.acceptUI = QPushButton('OK')
+        self.deleteUI = QPushButton('Delete')
         self.cloneUI = QCheckBox('Copy')
-        self.cancelUI = QPushButton('Cancel')
+
+
+        
 
 
         #Setup widgets
@@ -75,7 +79,7 @@ class LSeditor(QDialog):
         self.precisionUI.setRange(0,10)
         self.factorUI.setValidator(QDoubleValidator())
 
-        self.saveUI.setChecked(True)
+        #self.saveUI.setChecked(True)
         self.acceptUI.setDefault(True)
 
 
@@ -107,13 +111,12 @@ class LSeditor(QDialog):
         subLayout.setColumnStretch(3,0)
         self.layout.addLayout(subLayout,6,1,1,2)
 
-        self.layout.addWidget(QLabel('Save with project'),8,0)
-        self.layout.addWidget(self.saveUI,8,1,1,2)
-        self.layout.addWidget(self.cancelUI,9,0)
+        #self.layout.addWidget(QLabel('Save with project'),8,0)
+        #self.layout.addWidget(self.saveUI,8,1,1,2)
+        self.layout.addWidget(self.deleteUI,9,0)
         self.layout.addWidget(self.acceptUI,9,1)
         self.layout.addWidget(self.cloneUI,9,2)
 
-        self.layout.addWidget(self.debugUI,20,0,1,4)
 
 
         #Connect signals
@@ -128,9 +131,14 @@ class LSeditor(QDialog):
         # This makes the fields comboBox refresh when the user chooses a different layer
         QObject.connect(self.layerUI,SIGNAL("activated(int)"),self.choosedLayerChanged)
 
-        # Confirm or cancel
+        # Confirm or delete
         QObject.connect(self.acceptUI,SIGNAL("pressed()"),self.accept)
-        QObject.connect(self.cancelUI,SIGNAL("pressed()"),self.reject)
+
+        QObject.connect(self.deleteUI,SIGNAL("pressed()"),self.testtest)
+        #QObject.connect(self.deleteUI,SIGNAL("pressed()"),self.reject)
+        #QObject.connect(self.deleteDialog, SIGNAL('accepted()'), self.testtest)
+        #QObject.connect(self.deleteDialog, SIGNAL('accepted()'), self.bar.dialogDelete)
+
 
     def show(self, bar):
 
@@ -153,12 +161,15 @@ class LSeditor(QDialog):
         self.suffixUI.setText( bar.suffix )
         self.factorUI.setText( bar.factor )
         self.separatorUI.setCheckState( bar.separator )
-        self.saveUI.setCheckState( bar.saveWith )
+        #self.saveUI.setCheckState( bar.saveWith )
 
         self.cloneUI.setCheckState( False )
 
         self.createName(0)
+
         QDialog.show(self)
+        self.nameUI.setFocus()
+        self.nameUI.selectAll()
 
     def choosedLayerChanged(self, index):
         currentLayer = self.layerUI.currentLayer()
@@ -191,6 +202,20 @@ class LSeditor(QDialog):
 
             self.nameUI.setText(name)
 
+
+    def testtest(self):
+
+        # Create delete confirmation dialog
+        deleteDialog = QMessageBox()
+        deleteDialog.setText('Are you sure you want to delete this LiveStat ?')
+        deleteDialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        deleteDialog.setModal(True)
+        
+        if deleteDialog.exec_() == QMessageBox.Ok:
+            self.reject()
+            self.bar.dialogDelete()
+
+        #QgsMessageLog.logMessage('Test...','LiveStats')
 
 
 

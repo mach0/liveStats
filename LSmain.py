@@ -134,12 +134,17 @@ class LSmain:
         #EDIT THIS IS USELESS; SAVE ONLY ON FILE CLOSE !
         #QObject.connect(lsBar.dialog, SIGNAL('accepted()'), self.saveToFile)
 
+    def removeBar(self, lsBar):
+        self.iface.mainWindow().removeToolBar(lsBar)
+        self.statsBars.remove(lsBar)
+
+
     def saveToFile(self):
         QgsMessageLog.logMessage('Saving to file...','LiveStats')
         saveStringsLists = []
         for statsBar in self.statsBars:
-            if statsBar.saveWith:
-                saveStringsLists.append(statsBar.save())
+            #if statsBar.saveWith:
+            saveStringsLists.append(statsBar.save())
         #TODO : sometimes there's a bug :
         # AttributeError: 'NoneType' object has no attribute 'instance'
         QgsProject.instance().writeEntry('LiveStats','SavedStats',saveStringsLists)

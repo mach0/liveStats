@@ -40,7 +40,7 @@ class LSbar(QToolBar):
 
 
         # LiveStatBar's properties
-        self.name = "LiveStat "+ str(LSbar.count)
+        self.name = "LiveStat %i : " % LSbar.count
         self.autoName = 0
         self.layer = None
         self.fieldName = '$area'
@@ -51,7 +51,7 @@ class LSbar(QToolBar):
         self.suffix = ''
         self.factor = '1'
         self.separator = 2
-        self.saveWith = 2
+        #self.saveWith = 2
 
         self.position = {}
         self.position['floating'] = 0
@@ -59,7 +59,7 @@ class LSbar(QToolBar):
         self.position['y'] = 0
 
         # LiveStatBar's dialog
-        self.dialog = LSeditor(self.iface)
+        self.dialog = LSeditor(self.iface, self)
         QObject.connect(self.dialog, SIGNAL('accepted()'), self.dialogAccepted)
 
         # We connect the bar to some events that may trigger an update
@@ -115,7 +115,7 @@ class LSbar(QToolBar):
         bar.suffix = self.dialog.suffixUI.text()
         bar.factor = self.dialog.factorUI.text()
         bar.separator = self.dialog.separatorUI.checkState()
-        bar.saveWith = self.dialog.saveUI.checkState()
+        #bar.saveWith = self.dialog.saveUI.checkState()
 
         bar.setObjectName(self.name)
 
@@ -124,6 +124,10 @@ class LSbar(QToolBar):
         if makeClone:
             # If it's a clone, we update it 
             bar.compute()
+
+    def dialogDelete(self):
+        self.mainClass.removeBar(self)
+
         
 
 
@@ -331,7 +335,7 @@ class LSbar(QToolBar):
         self.position['x'] = int(loadStringList[12])
         self.position['y'] = int(loadStringList[13])
 
-        self.saveWith = 2
+        #self.saveWith = 2
 
         self.compute()
 
