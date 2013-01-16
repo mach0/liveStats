@@ -33,8 +33,6 @@ class LSeditor(QDialog):
     def __init__(self, iface, bar):
         QDialog.__init__(self)
 
-        self.debugUI = QTextBrowser()
-
         self.iface = iface
         self.bar = bar
 
@@ -60,7 +58,6 @@ class LSeditor(QDialog):
         self.factorUI = QLineEdit()
         self.separatorUI = QCheckBox()
 
-        #self.saveUI = QCheckBox()
         self.acceptUI = QPushButton('OK')
         self.deleteUI = QPushButton('Delete')
         self.cloneUI = QCheckBox('Copy')
@@ -79,7 +76,6 @@ class LSeditor(QDialog):
         self.precisionUI.setRange(0,10)
         self.factorUI.setValidator(QDoubleValidator())
 
-        #self.saveUI.setChecked(True)
         self.acceptUI.setDefault(True)
 
 
@@ -111,8 +107,6 @@ class LSeditor(QDialog):
         subLayout.setColumnStretch(3,0)
         self.layout.addLayout(subLayout,6,1,1,2)
 
-        #self.layout.addWidget(QLabel('Save with project'),8,0)
-        #self.layout.addWidget(self.saveUI,8,1,1,2)
         self.layout.addWidget(self.deleteUI,9,0)
         self.layout.addWidget(self.acceptUI,9,1)
         self.layout.addWidget(self.cloneUI,9,2)
@@ -134,19 +128,10 @@ class LSeditor(QDialog):
         # Confirm or delete
         QObject.connect(self.acceptUI,SIGNAL("pressed()"),self.accept)
 
-        QObject.connect(self.deleteUI,SIGNAL("pressed()"),self.testtest)
-        #QObject.connect(self.deleteUI,SIGNAL("pressed()"),self.reject)
-        #QObject.connect(self.deleteDialog, SIGNAL('accepted()'), self.testtest)
-        #QObject.connect(self.deleteDialog, SIGNAL('accepted()'), self.bar.dialogDelete)
+        QObject.connect(self.deleteUI,SIGNAL("pressed()"),self.delete)
 
 
     def show(self, bar):
-
-        t = 'Debug\n'
-        t += str(bar.pos()) + '\n'
-        t += str(bar.saveGeometry())
-        #saveGeometry 
-        self.debugUI.setText( t )
 
         self.setWindowTitle( bar.name )
 
@@ -161,7 +146,6 @@ class LSeditor(QDialog):
         self.suffixUI.setText( bar.suffix )
         self.factorUI.setText( bar.factor )
         self.separatorUI.setCheckState( bar.separator )
-        #self.saveUI.setCheckState( bar.saveWith )
 
         self.cloneUI.setCheckState( False )
 
@@ -198,14 +182,11 @@ class LSeditor(QDialog):
             if filt != '':
                 filt = ' ('+filt+')'
 
-            name = func + ' of ' + field + ' in ' + layer + sel + filt + ' :'
+            name = func + ' of ' + field + ' in ' + layer + sel + filt + ' : '
 
             self.nameUI.setText(name)
 
-
-    def testtest(self):
-
-        # Create delete confirmation dialog
+    def delete(self):
         deleteDialog = QMessageBox()
         deleteDialog.setText('Are you sure you want to delete this LiveStat ?')
         deleteDialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
@@ -215,7 +196,6 @@ class LSeditor(QDialog):
             self.reject()
             self.bar.dialogDelete()
 
-        #QgsMessageLog.logMessage('Test...','LiveStats')
 
 
 

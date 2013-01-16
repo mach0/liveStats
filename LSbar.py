@@ -51,7 +51,6 @@ class LSbar(QToolBar):
         self.suffix = ''
         self.factor = '1'
         self.separator = 2
-        #self.saveWith = 2
 
         self.position = {}
         self.position['floating'] = 0
@@ -115,7 +114,6 @@ class LSbar(QToolBar):
         bar.suffix = self.dialog.suffixUI.text()
         bar.factor = self.dialog.factorUI.text()
         bar.separator = self.dialog.separatorUI.checkState()
-        #bar.saveWith = self.dialog.saveUI.checkState()
 
         bar.setObjectName(self.name)
 
@@ -302,7 +300,6 @@ class LSbar(QToolBar):
         returnStringList.append( str(self.separator) ) #10
 
         # Position attributes
-        #returnStringList.append( str(self.saveGeometry()) ) #11
         returnStringList.append( str(int(self.isFloating())) ) #11
         returnStringList.append( str(self.pos().x()) ) #12
         returnStringList.append( str(self.pos().y()) ) #13
@@ -313,29 +310,31 @@ class LSbar(QToolBar):
         # This sets this bar's attributes from a QString to be loaded
         loadStringList = string.split('*|*')
 
-        # Statistics attributes
-        self.name = loadStringList[0] #0
-        self.autoName = int(loadStringList[1]) #1
-        self.layer = None #2
-        for l in self.iface.legendInterface().layers():
-            if l.id() == loadStringList[2]:
-                self.layer = l #2
-        self.fieldName = loadStringList[3] #3
-        self.filter = loadStringList[4] #4
-        self.functionName = loadStringList[5] #5
-        self.selectedOnly = int(loadStringList[6]) #6
-        self.precision = int(loadStringList[7]) #7
-        self.suffix = loadStringList[8] #8
-        self.factor = loadStringList[9] #9
-        self.separator = int(loadStringList[10]) #10
+        try:
+            # Statistics attributes
+            self.name = loadStringList[0] #0
+            self.autoName = int(loadStringList[1]) #1
+            self.layer = None #2
+            for l in self.iface.legendInterface().layers():
+                if l.id() == loadStringList[2]:
+                    self.layer = l #2
+            self.fieldName = loadStringList[3] #3
+            self.filter = loadStringList[4] #4
+            self.functionName = loadStringList[5] #5
+            self.selectedOnly = int(loadStringList[6]) #6
+            self.precision = int(loadStringList[7]) #7
+            self.suffix = loadStringList[8] #8
+            self.factor = loadStringList[9] #9
+            self.separator = int(loadStringList[10]) #10
 
-        # Position attributes
-        #self.storedGeometry = loadStringList[11].toAscii() #11
-        self.position['floating'] = bool(int(loadStringList[11]))
-        self.position['x'] = int(loadStringList[12])
-        self.position['y'] = int(loadStringList[13])
-
-        #self.saveWith = 2
+            # Position attributes
+            #self.storedGeometry = loadStringList[11].toAscii() #11
+            self.position['floating'] = bool(int(loadStringList[11]))
+            self.position['x'] = int(loadStringList[12])
+            self.position['y'] = int(loadStringList[13])
+        except IndexError as e:
+            # On plugin update, if attributes are added, this allows to load as much as possible... Remaining attributes will be defaults
+            pass
 
         self.compute()
 

@@ -43,12 +43,13 @@ class LSmain:
         #Will hold the stats bars
         self.statsBars = []
 
-        # We have to reload the list when a project is opened/closed
-        #QObject.connect(self.iface, SIGNAL("projectRead()"), self.loadFromFile)
-
-        QObject.connect(self.iface, SIGNAL("newProjectCreated()"), self.removeStatsBars)
+        # We have to load the list when a project is opened
         QObject.connect(self.iface, SIGNAL("projectRead()"), self.loadFromFile)
-        #QObject.connect(QgsProject.instance(), SIGNAL("readProject(QDomDocument &)"), self.loadFromFile)
+
+        # We have to emtpy the list when a new project is created
+        QObject.connect(self.iface, SIGNAL("newProjectCreated()"), self.removeAllBars)
+
+        # We have to save the list when the project is written
         QObject.connect(QgsProject.instance(), SIGNAL("writeProject(QDomDocument &)"), self.saveToFile)
 
         # TODO : this is triggered at the moment the file is read,
@@ -56,18 +57,8 @@ class LSmain:
         # This makes the liveStats to compute for every layer at loading,
         # which is useless and slows down the loading
 
-        # it is necessary to remove the stats bars when the project is closed
-        # and to load them once it is completely loaded only
-
         # is this possible ?
-
-        # Is this better?
         #QObject.connect(self.iface, SIGNAL("initializationCompleted()"), self.loadFromFile) 
-
-        #projectSaved()
-        
-
-
 
         #w And we load from file (this should only be usefull if the plugin is loaded when a file is already opened)
         self.loadFromFile()
@@ -105,12 +96,8 @@ class LSmain:
         self.iface.removePluginMenu(u"&Live Statistics", self.action)
         self.iface.removePluginMenu(u"&Live Statistics", self.helpAction)
         self.iface.removeToolBarIcon(self.action)
-        self.removeStatsBars()
+        self.removeAllBars()
 
-    def removeStatsBars(self):
-        for statsBar in self.statsBars:
-            statsBar.setParent(None)
-        self.statsBars = []
 
 
     def createBar(self):
@@ -131,27 +118,31 @@ class LSmain:
         # We add it to this array (usefull for looping through all bars)
         self.statsBars.append(lsBar)
 
-        #EDIT THIS IS USELESS; SAVE ONLY ON FILE CLOSE !
-        #QObject.connect(lsBar.dialog, SIGNAL('accepted()'), self.saveToFile)
 
     def removeBar(self, lsBar):
         self.iface.mainWindow().removeToolBar(lsBar)
         self.statsBars.remove(lsBar)
 
 
+    def removeAllBars(self):
+        for statsBar in self.statsBars:
+            statsBar.setParent(None)
+        self.statsBars = []
+
+
     def saveToFile(self):
-        QgsMessageLog.logMessage('Saving to file...','LiveStats')
+        #QgsMessageLog.logMessage('Saving to file...','LiveStats')
         saveStringsLists = []
         for statsBar in self.statsBars:
-            #if statsBar.saveWith:
             saveStringsLists.append(statsBar.save())
-        #TODO : sometimes there's a bug :
-        # AttributeError: 'NoneType' object has no attribute 'instance'
+
+        #TODO : sometimes there's the following error : AttributeError: 'NoneType' object has no attribute 'instance'
+        #if QgsProject.instance() is not None: #Don't know if it's ok to uncomment this : won't it make save silently fail sometimes ?
         QgsProject.instance().writeEntry('LiveStats','SavedStats',saveStringsLists)
 
     def loadFromFile(self):
-        QgsMessageLog.logMessage('Loading from file...','LiveStats')
-        self.removeStatsBars()
+        #QgsMessageLog.logMessage('Loading from file...','LiveStats')
+        self.removeAllBars()
 
         loadedStringsLists = QgsProject.instance().readListEntry('LiveStats','SavedStats')[0]
         for loadString in loadedStringsLists:
