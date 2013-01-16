@@ -49,8 +49,8 @@ class LSbar(QToolBar):
         self.filter = ''
         self.functionName = 'Sum'
         self.selectedOnly = 2
-        self.precision = 3
-        self.suffix = ''
+        self.precision = 2
+        self.suffix = '   '
         self.factor = '1'
         self.separator = 2
 
@@ -224,7 +224,7 @@ class LSbar(QToolBar):
             self.setText(result)
 
         except NoLayerError as e:
-            self.setText('NO LAYER !')
+            self.setText('---')
             return
         except ParserError as e:
             self.setText('PARSER ERROR : '+str(e))

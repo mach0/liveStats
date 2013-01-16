@@ -68,7 +68,7 @@ class LSmain:
         # LiveStats Action
 
         # Create actions
-        self.action = QAction( QIcon(":/plugins/livestats/icon.png"), u"Live Statistics", self.iface.mainWindow() )
+        self.action = QAction( QIcon(":/plugins/livestats/icon.png"), u"Create new LiveStats", self.iface.mainWindow() )
         self.helpAction = QAction( QIcon(":/plugins/livestats/about.png"), u"Help", self.iface.mainWindow())
         self.hideAllAction = QAction( u"Hide all LiveStats", self.hideAll())
         self.showAllAction = QAction( u"Show all LiveStats", self.showAll())

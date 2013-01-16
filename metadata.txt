@@ -24,7 +24,7 @@ email=olivier.dalang@gmail.com
 changelog=please see included readme/help
 
 # tags are comma separated with spaces allowed
-tags=statistics,live
+tags=statistics,live,selection,attribute,display
 
 homepage=https://github.com/redlegoreng/liveStats
 tracker=https://github.com/redlegoreng/liveStats/issues

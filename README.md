@@ -14,9 +14,9 @@ LiveStats allows to display simple statistics about vector data in small toolbar
 Click on the LiveStats button to add a LiveStat. A configuration dialog will pop up.
 Once configured, the statistic will be displayed at the bottom of the main window. You can move it around if you like and even display it as a floating palette.
 
-Click on the LiveStats palette to modify it's settings again. You can add as many LiveStats palettes as you like. You can move them around, and dock/undock them. You can hide them like you do for any toolbar (right-click on an empty space of the interface).
+Click on the LiveStats palette to modify it's settings again. You can add as many LiveStats palettes as you like. You can move them around, and dock/undock them.
 
-The LiveStats automatically update when the selection changes (if "Selection only" is checked), when the active layer changes (if layer is set to "[active]"), when modified (by clicking on it), or when the project is opened.
+The LiveStats automatically update when the selection changes (if "Selection only" is checked), when the active layer changes (if layer is set to "[active]"), when modified (by clicking on it) or when the project is opened.
 
 You can show/hide a LiveStats as you would do for any ToolBar (eg. by right-clicking in an empty space of the interface). You can toggle all LiveStat's visibiliy via the plugin menu (show/hide all LiveStats).
 
