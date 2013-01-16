@@ -52,7 +52,11 @@ class LSbar(QToolBar):
         self.factor = '1'
         self.separator = 2
         self.saveWith = 2
-        #self.position = Qt.BottomToolBarArea
+
+        self.position = {}
+        self.position['floating'] = 0
+        self.position['x'] = 0
+        self.position['y'] = 0
 
         # LiveStatBar's dialog
         self.dialog = LSeditor(self.iface)
@@ -238,12 +242,19 @@ class LSbar(QToolBar):
     def setText(self, text):
         self.nameWidget.setText( self.name )
         self.displayWidget.setText(text)
-        
+
         #Resize the widget
         self.setMinimumSize( self.sizeHint() )
+        
+        #TODO : there are some glitches when text length increases and the toolbar is docked on a side
+        #but none of this works :/
+        #self.updateGeometry()
+        #self.update()
+        #self.repaint()
+        #self.iface.mainWindow().updateGeometry()
+        #self.iface.mainWindow().update()
+        #self.iface.mainWindow().repaint()
 
-        #Repain the mainWindow (prevents display glitches)
-        self.iface.mainWindow().update()
 
     def valueForFeature(self, feature, computer, computeFieldIndex):
         # This returns the value for a feature and a computeFieldIndex
@@ -270,21 +281,27 @@ class LSbar(QToolBar):
         # This returns this bar's attributes as a QString to be stored in the file
         returnStringList = QStringList()
 
-        returnStringList.append( self.name )
-        returnStringList.append( str(self.autoName) ) 
+        # Statistics attributes
+        returnStringList.append( self.name ) #0
+        returnStringList.append( str(self.autoName) )  #1
         if self.layer is None:
-            returnStringList.append( '' )
+            returnStringList.append( '' ) #2
         else:
-            returnStringList.append( self.layer.id() )
-        returnStringList.append( self.fieldName )
-        returnStringList.append( self.filter )
-        returnStringList.append( self.functionName )
-        returnStringList.append( str(self.selectedOnly) ) 
-        returnStringList.append( str(self.precision) )
-        returnStringList.append( self.suffix )
-        returnStringList.append( self.factor )
-        returnStringList.append( str(self.separator) )
-        #returnStringList.append( str(self.position) )
+            returnStringList.append( self.layer.id() ) #2
+        returnStringList.append( self.fieldName ) #3
+        returnStringList.append( self.filter ) #4
+        returnStringList.append( self.functionName ) #5
+        returnStringList.append( str(self.selectedOnly) ) #6
+        returnStringList.append( str(self.precision) ) #7
+        returnStringList.append( self.suffix ) #8
+        returnStringList.append( self.factor ) #9
+        returnStringList.append( str(self.separator) ) #10
+
+        # Position attributes
+        #returnStringList.append( str(self.saveGeometry()) ) #11
+        returnStringList.append( str(int(self.isFloating())) ) #11
+        returnStringList.append( str(self.pos().x()) ) #12
+        returnStringList.append( str(self.pos().y()) ) #13
 
         return returnStringList.join('*|*')
 
@@ -292,22 +309,29 @@ class LSbar(QToolBar):
         # This sets this bar's attributes from a QString to be loaded
         loadStringList = string.split('*|*')
 
-        self.name = loadStringList[0]
-        self.autoName = int(loadStringList[1])
-        self.layer = None
+        # Statistics attributes
+        self.name = loadStringList[0] #0
+        self.autoName = int(loadStringList[1]) #1
+        self.layer = None #2
         for l in self.iface.legendInterface().layers():
             if l.id() == loadStringList[2]:
-                self.layer = l
-        self.fieldName = loadStringList[3]
-        self.filter = loadStringList[4]
-        self.functionName = loadStringList[5]
-        self.selectedOnly = int(loadStringList[6])
-        self.precision = int(loadStringList[7])
-        self.suffix = loadStringList[8]
-        self.factor = loadStringList[9]
-        self.separator = int(loadStringList[10])
+                self.layer = l #2
+        self.fieldName = loadStringList[3] #3
+        self.filter = loadStringList[4] #4
+        self.functionName = loadStringList[5] #5
+        self.selectedOnly = int(loadStringList[6]) #6
+        self.precision = int(loadStringList[7]) #7
+        self.suffix = loadStringList[8] #8
+        self.factor = loadStringList[9] #9
+        self.separator = int(loadStringList[10]) #10
+
+        # Position attributes
+        #self.storedGeometry = loadStringList[11].toAscii() #11
+        self.position['floating'] = bool(int(loadStringList[11]))
+        self.position['x'] = int(loadStringList[12])
+        self.position['y'] = int(loadStringList[13])
+
         self.saveWith = 2
-        #self.position = int(loadStringList[12])
 
         self.compute()
 

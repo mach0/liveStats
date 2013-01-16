@@ -44,7 +44,12 @@ class LSmain:
         self.statsBars = []
 
         # We have to reload the list when a project is opened/closed
+        #QObject.connect(self.iface, SIGNAL("projectRead()"), self.loadFromFile)
+
+        QObject.connect(self.iface, SIGNAL("newProjectCreated()"), self.removeStatsBars)
         QObject.connect(self.iface, SIGNAL("projectRead()"), self.loadFromFile)
+        #QObject.connect(QgsProject.instance(), SIGNAL("readProject(QDomDocument &)"), self.loadFromFile)
+        QObject.connect(QgsProject.instance(), SIGNAL("writeProject(QDomDocument &)"), self.saveToFile)
 
         # TODO : this is triggered at the moment the file is read,
         # and the layer then load one after the other
@@ -58,6 +63,9 @@ class LSmain:
 
         # Is this better?
         #QObject.connect(self.iface, SIGNAL("initializationCompleted()"), self.loadFromFile) 
+
+        #projectSaved()
+        
 
 
 
@@ -112,12 +120,22 @@ class LSmain:
 
     def addBar(self, lsBar):
         # This adds a bar to the project
-        self.iface.mainWindow().addToolBar(Qt.RightToolBarArea, lsBar)
-        #self.iface.mainWindow().addToolBar(lsBar.position, lsBar)
+
+        self.iface.mainWindow().addToolBar(Qt.BottomToolBarArea, lsBar)
+        if lsBar.position['floating']:
+            lsBar.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint);
+            lsBar.move( lsBar.position['x'], lsBar.position['y'] )
+            #lsBar.restoreGeometry( lsBar.storedGeometry )
+            #QgsMessageLog.logMessage('Positionned ! %f ; %f' % (lsBar.position['x'], lsBar.position['y']),'LiveStats')
+
+        # We add it to this array (usefull for looping through all bars)
         self.statsBars.append(lsBar)
-        QObject.connect(lsBar.dialog, SIGNAL('accepted()'), self.saveToFile)
+
+        #EDIT THIS IS USELESS; SAVE ONLY ON FILE CLOSE !
+        #QObject.connect(lsBar.dialog, SIGNAL('accepted()'), self.saveToFile)
 
     def saveToFile(self):
+        QgsMessageLog.logMessage('Saving to file...','LiveStats')
         saveStringsLists = []
         for statsBar in self.statsBars:
             if statsBar.saveWith:
@@ -127,10 +145,12 @@ class LSmain:
         QgsProject.instance().writeEntry('LiveStats','SavedStats',saveStringsLists)
 
     def loadFromFile(self):
+        QgsMessageLog.logMessage('Loading from file...','LiveStats')
         self.removeStatsBars()
 
         loadedStringsLists = QgsProject.instance().readListEntry('LiveStats','SavedStats')[0]
         for loadString in loadedStringsLists:
+            QgsMessageLog.logMessage('Loading a stats !','LiveStats')
             newStatsBar = LSbar(self.iface, self, False)
             newStatsBar.load(loadString)
             self.addBar(newStatsBar)

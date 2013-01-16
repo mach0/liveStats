@@ -33,6 +33,8 @@ class LSeditor(QDialog):
     def __init__(self, iface):
         QDialog.__init__(self)
 
+        self.debugUI = QTextBrowser()
+
         self.iface = iface
 
         self.setModal(True)
@@ -111,6 +113,8 @@ class LSeditor(QDialog):
         self.layout.addWidget(self.acceptUI,9,1)
         self.layout.addWidget(self.cloneUI,9,2)
 
+        self.layout.addWidget(self.debugUI,20,0,1,4)
+
 
         #Connect signals
         # These are just for autoname
@@ -129,6 +133,13 @@ class LSeditor(QDialog):
         QObject.connect(self.cancelUI,SIGNAL("pressed()"),self.reject)
 
     def show(self, bar):
+
+        t = 'Debug\n'
+        t += str(bar.pos()) + '\n'
+        t += str(bar.saveGeometry())
+        #saveGeometry 
+        self.debugUI.setText( t )
+
         self.setWindowTitle( bar.name )
 
         self.nameUI.setText( bar.name )
