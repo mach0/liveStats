@@ -27,13 +27,15 @@ from qgis.core import *
 import resources_rc
 
 from LSbar import LSbar
+from LSaboutWindow import LSaboutWindow
 
 
-class LSliveStats:
+class LSmain:
 
     def __init__(self, iface):
 
         QgsMessageLog.logMessage('Loading the plugin...','LiveStats')
+
 
         # Save reference to the QGIS interface
         self.iface = iface
@@ -64,20 +66,36 @@ class LSliveStats:
         
 
     def initGui(self):
+        # LiveStats Action
         # Create action that will start plugin configuration
-        self.action = QAction(
-            QIcon(":/plugins/livestats/icon.png"),
-            u"Live Statistics", self.iface.mainWindow())
+        self.action = QAction( QIcon(":/plugins/livestats/icon.png"), u"Live Statistics", self.iface.mainWindow() )
         # connect the action to the createBar method
         QObject.connect(self.action, SIGNAL("triggered()"), self.createBar)
-
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)
         self.iface.addPluginToMenu(u"&Live Statistics", self.action)
 
+        self.initHelp()
+
+
+    def initHelp(self):
+        # Help Action
+        # Create action 
+        self.helpAction = QAction( QIcon(":/plugins/livestats/about.png"), u"Help", self.iface.mainWindow())
+        # connect the action 
+        QObject.connect(self.helpAction, SIGNAL("triggered()"), self.showHelp)
+        # Add menu item
+        self.iface.addPluginToMenu(u"&Live Statistics", self.helpAction)
+
+    def showHelp(self):
+        # Simply show the help window
+        self.aboutWindow = LSaboutWindow()
+
+
     def unload(self):
         # Remove the plugin menu item and icon
         self.iface.removePluginMenu(u"&Live Statistics", self.action)
+        self.iface.removePluginMenu(u"&Live Statistics", self.helpAction)
         self.iface.removeToolBarIcon(self.action)
         self.removeStatsBars()
 
@@ -104,6 +122,8 @@ class LSliveStats:
         for statsBar in self.statsBars:
             if statsBar.saveWith:
                 saveStringsLists.append(statsBar.save())
+        #TODO : sometimes there's a bug :
+        # AttributeError: 'NoneType' object has no attribute 'instance'
         QgsProject.instance().writeEntry('LiveStats','SavedStats',saveStringsLists)
 
     def loadFromFile(self):
@@ -114,6 +134,8 @@ class LSliveStats:
             newStatsBar = LSbar(self.iface, self, False)
             newStatsBar.load(loadString)
             self.addBar(newStatsBar)
+
+
 
     
 

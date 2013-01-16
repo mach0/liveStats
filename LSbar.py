@@ -166,6 +166,9 @@ class LSbar(QToolBar):
             #Get the field index for the field that is being comuputed
             computeFieldIndex = layer.fieldNameIndex( self.fieldName )
 
+            #Not really clear what this does...
+            layer.select( layer.pendingAllAttributesList() )
+
 
             if self.filter != '':
                 expression = QgsExpression(self.filter)
@@ -182,8 +185,6 @@ class LSbar(QToolBar):
                 if self.selectedOnly:
                     return layer.selectedFeatures()
                 else:
-                    # Select all the features
-                    layer.select( layer.pendingAllAttributesList() )
                     # The layer is an iterator that returns a QgsFeature on next(), so just return the layer
                     return layer
 

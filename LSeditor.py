@@ -144,6 +144,8 @@ class LSeditor(QDialog):
         self.separatorUI.setCheckState( bar.separator )
         self.saveUI.setCheckState( bar.saveWith )
 
+        self.cloneUI.setCheckState( False )
+
         self.createName(0)
         QDialog.show(self)
 

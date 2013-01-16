@@ -1,0 +1,60 @@
+<h1>LiveStats</h1>
+
+<p><strong>Disclaimer</strong> : use at your own risk, the plugin is in developpement. In case of problem, open your QGis file in a plain text editor, and remove everything between &lt;LiveStats&gt; and &lt;/LiveStats&gt;.</p>
+
+<h2>Description</h2>
+
+<p>LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback.</p>
+
+<p><img src="https://raw.github.com/redlegoreng/liveStats/master/screenshot.png" alt="Screenshot" /></p>
+
+<h2>Usage</h2>
+
+<p>Click on the LiveStats button to add a LiveStat. A configuration dialog will pop up.
+Once configured, the statistic will be displayed at the bottom of the main window. You can move it around if you like and even display it as a floating palette.</p>
+
+<p>Click on the LiveStats palette to modify it's settings again. You can add as many LiveStats palettes as you like. You can move them around, and dock/undock them. You can hide them like you do for any toolbar (right-click on an empty space of the interface).</p>
+
+<p>The LiveStats automatically update when the selection changes (if "Selection only" is checked), when the active layer changes (if layer is set to "[active]"), when modified (by clicking on it), or when the project is opened.</p>
+
+<h3>Configuration</h3>
+
+<ul>
+<li><strong>Name</strong> : Enter the display name of the statistic. You can check the box on the right to have an automatic name.</li>
+<li><strong>Layer</strong> : Choose which layer the statistic will be based on. By choosing [active], the statistic will dynamically update depending on the current active layer.</li>
+<li><strong>Field</strong> : Choose which field will be computed.</li>
+<li><strong>Filter</strong> : Enter an SQL "where" expression to filter the features. Leave this empty if you don't want to filter the features.</li>
+<li><strong>Function</strong> : Choose which statistic function you want to use. <strong>Note that "count" simply counts the items, includings Null values</strong> (this will be changed).</li>
+<li><strong>Selection only</strong> : Check this if you want to compute statistics of the selection only. Leaving this unchecked will compute the statistics of the whole layer.</li>
+<li><strong>Precision...</strong> : Enter the number of decimals, the suffix (usefull to specify a display unit), the factor (usefull to convert to a specific unit) and whether thousands separators should be shown</li>
+<li><strong>Save with project</strong> : Check this to have the statistic saved into the project file and be reloaded next time you open it. Unchecking this and reloading the project is currently the only way to delete a LiveStat.</li>
+<li><strong>Copy</strong> : If this is checked when clicking OK, the LiveStat will be copied into a new one, and the original one will remain untouched.</li>
+</ul>
+
+<h2>Feedback / bugs</h2>
+
+<p>Please send bugs and ideas on the issue tracker : https://github.com/redlegoreng/liveStats/issues</p>
+
+<p>Or send me some feedback at : olivier.dalang@gmail.com</p>
+
+<h2>Version history</h2>
+
+<ul>
+<li>2013-01-01 - version 0.1 : first version (still very sketchy)</li>
+<li>2013-01-02 - version 0.11 : fixed a bug with locale</li>
+<li>2013-01-03 - version 0.2 : 
+<ul>
+<li>added "where filters"</li>
+<li>ability to clone a LiveStat toolbar</li>
+</ul></li>
+<li>2013-01-15 - version 0.3 :
+<ul>
+<li>added help (via the plugin menu)</li>
+<li>fixed a small bug where there was a NoGeometry error under certain circumstances</li>
+<li>fixed clone checkbox staying checked</li>
+</ul></li>
+</ul>
+
+<h2>Contribute</h2>
+
+<p>Help is welcome ! There's a serie of issues and ideas on the github repository : https://github.com/redlegoreng/liveStats.git</p>

@@ -4,7 +4,7 @@
  LiveStats
                                  A QGIS plugin
  Display live statistics about vector selections
-                             -------------------
+                              -------------------
         begin                : 2012-12-30
         copyright            : (C) 2012 by Olivier Dalang
         email                : olivier.dalang@gmail.com
@@ -18,36 +18,36 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- This script initializes the plugin, making it known to QGIS.
 """
+# Import the PyQt and QGIS libraries
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from qgis.core import *
 
+class LSaboutWindow(QDialog):
 
-def name():
-    return "Live Statistics"
+    def __init__(self):
+        QDialog.__init__(self)
 
+        self.setMinimumWidth(600)
+        self.setMinimumHeight(450)
 
-def description():
-    return "LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback."
+        self.helpFile = QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "python/plugins/LiveStats/README.html"
+        
+        self.setWindowTitle('LiveStats')
 
+        txt = QTextBrowser()
+        txt.setReadOnly(True)
+        txt.setText( open(self.helpFile, 'r').read() )
 
-def version():
-    return "Version 0.2"
+        cls = QPushButton('Close')
 
+        QObject.connect(cls,SIGNAL("pressed()"),self.accept)
 
-def icon():
-    return "icon.png"
+        lay = QVBoxLayout()
+        lay.addWidget(txt)
+        lay.addWidget(cls)
 
+        self.setLayout(lay)
 
-def qgisMinimumVersion():
-    return "1.8"
-
-def author():
-    return "Olivier Dalang"
-
-def email():
-    return "olivier.dalang@gmail.com"
-
-def classFactory(iface):
-    # load LiveStats class from file LiveStats
-    from LSmain import LSmain
-    return LSmain(iface)
+        self.show()
