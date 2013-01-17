@@ -6,7 +6,7 @@
 
 LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback.
 
-![Screenshot](https://raw.github.com/redlegoreng/liveStats/master/screenshot.png)
+![Screenshot](https://raw.github.com/olivierdalang/liveStats/master/screenshot.png)
 
 
 ## Usage ##
@@ -36,7 +36,7 @@ You can show/hide a LiveStats as you would do for any ToolBar (eg. by right-clic
 
 ## Feedback / bugs ##
 
-Please send bugs and ideas on the issue tracker : https://github.com/redlegoreng/liveStats/issues
+Please send bugs and ideas on the issue tracker : https://github.com/olivierdalang/liveStats/issues
 
 Or send me some feedback at : olivier.dalang@gmail.com
 
@@ -58,6 +58,6 @@ Or send me some feedback at : olivier.dalang@gmail.com
 
 ## Contribute ##
 
-Help is welcome ! There's a serie of issues and ideas on the github repository : https://github.com/redlegoreng/liveStats.git
+Help is welcome ! There's a serie of issues and ideas on the github repository : https://github.com/olivierdalang/liveStats.git
 
 

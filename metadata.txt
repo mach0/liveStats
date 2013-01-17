@@ -26,9 +26,9 @@ changelog=added help (via the plugin menu), store floating palettes positions, a
 # tags are comma separated with spaces allowed
 tags=statistics,live,selection,attribute,display
 
-homepage=https://github.com/redlegoreng/liveStats
-tracker=https://github.com/redlegoreng/liveStats/issues
-repository=https://github.com/redlegoreng/liveStats.git
+homepage=https://github.com/olivierdalang/liveStats
+tracker=https://github.com/olivierdalang/liveStats/issues
+repository=https://github.com/olivierdalang/liveStats.git
 icon=icon.png
 # experimental flag
 experimental=True
