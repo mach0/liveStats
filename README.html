@@ -13,9 +13,11 @@
 <p>Click on the LiveStats button to add a LiveStat. A configuration dialog will pop up.
 Once configured, the statistic will be displayed at the bottom of the main window. You can move it around if you like and even display it as a floating palette.</p>
 
-<p>Click on the LiveStats palette to modify it's settings again. You can add as many LiveStats palettes as you like. You can move them around, and dock/undock them. You can hide them like you do for any toolbar (right-click on an empty space of the interface).</p>
+<p>Click on the LiveStats palette to modify it's settings again. You can add as many LiveStats palettes as you like. You can move them around, and dock/undock them.</p>
 
-<p>The LiveStats automatically update when the selection changes (if "Selection only" is checked), when the active layer changes (if layer is set to "[active]"), when modified (by clicking on it), or when the project is opened.</p>
+<p>The LiveStats automatically update when the selection changes (if "Selection only" is checked), when the active layer changes (if layer is set to "[active]"), when modified (by clicking on it) or when the project is opened.</p>
+
+<p>You can show/hide a LiveStats as you would do for any ToolBar (eg. by right-clicking in an empty space of the interface). You can toggle all LiveStat's visibiliy via the plugin menu (show/hide all LiveStats).</p>
 
 <h3>Configuration</h3>
 
@@ -27,7 +29,7 @@ Once configured, the statistic will be displayed at the bottom of the main windo
 <li><strong>Function</strong> : Choose which statistic function you want to use. <strong>Note that "count" simply counts the items, includings Null values</strong> (this will be changed).</li>
 <li><strong>Selection only</strong> : Check this if you want to compute statistics of the selection only. Leaving this unchecked will compute the statistics of the whole layer.</li>
 <li><strong>Precision...</strong> : Enter the number of decimals, the suffix (usefull to specify a display unit), the factor (usefull to convert to a specific unit) and whether thousands separators should be shown</li>
-<li><strong>Save with project</strong> : Check this to have the statistic saved into the project file and be reloaded next time you open it. Unchecking this and reloading the project is currently the only way to delete a LiveStat.</li>
+<li><strong>Delete</strong> : Press this to delete the LiveStat. This can't be undone !</li>
 <li><strong>Copy</strong> : If this is checked when clicking OK, the LiveStat will be copied into a new one, and the original one will remain untouched.</li>
 </ul>
 
@@ -47,9 +49,12 @@ Once configured, the statistic will be displayed at the bottom of the main windo
 <li>added "where filters"</li>
 <li>ability to clone a LiveStat toolbar</li>
 </ul></li>
-<li>2013-01-15 - version 0.3 :
+<li>2013-01-15 - version 0.3 : 
 <ul>
 <li>added help (via the plugin menu)</li>
+<li>store floating palettes positions</li>
+<li>added hide/show all</li>
+<li>added delete button</li>
 <li>fixed a small bug where there was a NoGeometry error under certain circumstances</li>
 <li>fixed clone checkbox staying checked</li>
 </ul></li>
