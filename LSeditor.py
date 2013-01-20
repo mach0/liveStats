@@ -51,6 +51,7 @@ class LSeditor(QDialog):
         self.fieldUI = LSwidgetChooseField(self.iface)
         self.functionUI = QComboBox()
         self.filterUI = QLineEdit()
+        self.filterDialogUI = QPushButton('editor')
         self.selectionUI = QCheckBox()
 
         self.precisionUI = QSpinBox()
@@ -89,7 +90,9 @@ class LSeditor(QDialog):
         self.layout.addWidget(QLabel('Field'),2,0)
         self.layout.addWidget(self.fieldUI,2,1,1,2)
         self.layout.addWidget(QLabel('Filter (where)'),3,0)
-        self.layout.addWidget(self.filterUI,3,1,1,2)
+        self.layout.addWidget(self.filterUI,3,1)
+        self.layout.addWidget(self.filterDialogUI,3,2)
+
         self.layout.addWidget(QLabel('Function'),4,0)
         self.layout.addWidget(self.functionUI,4,1,1,2)
         self.layout.addWidget(QLabel('Selection only'),5,0)
@@ -124,6 +127,9 @@ class LSeditor(QDialog):
 
         # This makes the fields comboBox refresh when the user chooses a different layer
         QObject.connect(self.layerUI,SIGNAL("activated(int)"),self.choosedLayerChanged)
+
+        # This opens the filter builder
+        QObject.connect(self.filterDialogUI,SIGNAL("pressed()"),self.displayFilterBuilder)
 
         # Confirm or delete
         QObject.connect(self.acceptUI,SIGNAL("pressed()"),self.accept)
@@ -167,6 +173,13 @@ class LSeditor(QDialog):
         else:
             self.nameUI.setEnabled(False)
             self.createName(0)
+
+    def displayFilterBuilder(self):
+        expDlg = QgsSearchQueryBuilder( self.layerUI.currentLayer() )
+        expDlg.setSearchString(  self.filterUI.text() )
+        if expDlg.exec_():
+            self.filterUI.setText(expDlg.searchString())
+
 
     def createName(self, index):
         if self.autoNameUI.checkState():
