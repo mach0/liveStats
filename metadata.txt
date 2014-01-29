@@ -10,7 +10,7 @@
 
 [general]
 name=Live Statistics
-qgisMinimumVersion=1.8
+qgisMinimumVersion=2.0
 description=LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback.
 version=0.3
 author=Olivier Dalang

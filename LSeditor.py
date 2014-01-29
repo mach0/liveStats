@@ -24,6 +24,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
+import importlib
 
 from LSwidgetChooseField import LSwidgetChooseField
 from LSwidgetChooseLayer import LSwidgetChooseLayer
@@ -45,7 +46,7 @@ class LSeditor(QDialog):
 
         #Create widgets
         self.nameUI = QLineEdit()
-        self.autoNameUI = QCheckBox()
+        self.autoNameUI = QCheckBox('Auto')
 
         self.layerUI = LSwidgetChooseLayer(self.iface)
         self.fieldUI = LSwidgetChooseField(self.iface)
@@ -69,12 +70,13 @@ class LSeditor(QDialog):
 
         #Setup widgets
         self.nameUI.setMinimumWidth(300)
+        self.autoNameUI.setChecked(True)
 
-        self.functionUI.addItems(['Sum','Mean','Min','Max','Count'])
+        self.functionUI.addItems(['Sum','Mean','Min','Max','NonNull','Count','Concat','UniqueConcat'])
         self.selectionUI.setChecked(True)
 
 
-        self.precisionUI.setRange(0,10)
+        self.precisionUI.setRange(-10,10)
         self.factorUI.setValidator(QDoubleValidator())
 
         self.acceptUI.setDefault(True)
@@ -87,14 +89,17 @@ class LSeditor(QDialog):
 
         self.layout.addWidget(QLabel('Layer'),1,0)
         self.layout.addWidget(self.layerUI,1,1,1,2)
-        self.layout.addWidget(QLabel('Field'),2,0)
-        self.layout.addWidget(self.fieldUI,2,1,1,2)
-        self.layout.addWidget(QLabel('Filter (where)'),3,0)
-        self.layout.addWidget(self.filterUI,3,1)
-        self.layout.addWidget(self.filterDialogUI,3,2)
 
-        self.layout.addWidget(QLabel('Function'),4,0)
-        self.layout.addWidget(self.functionUI,4,1,1,2)
+        self.layout.addWidget(QLabel('Function'),2,0)
+        self.layout.addWidget(self.functionUI,2,1,1,2)
+
+        self.layout.addWidget(QLabel('Field'),3,0)
+        self.layout.addWidget(self.fieldUI,3,1,1,2)
+
+        self.layout.addWidget(QLabel('Filter (where)'),4,0)
+        self.layout.addWidget(self.filterUI,4,1)
+        self.layout.addWidget(self.filterDialogUI,4,2)
+
         self.layout.addWidget(QLabel('Selection only'),5,0)
         self.layout.addWidget(self.selectionUI,5,1,1,2)
 
@@ -195,7 +200,7 @@ class LSeditor(QDialog):
             if filt != '':
                 filt = ' ('+filt+')'
 
-            name = func + ' of ' + field + ' in ' + layer + sel + filt + ' : '
+            name = func + ' of ' + field + ' in ' + layer + sel + filt
 
             self.nameUI.setText(name)
 

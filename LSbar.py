@@ -43,7 +43,7 @@ class LSbar(QToolBar):
 
         # LiveStatBar's properties
         self.name = "LiveStat %i" % LSbar.count
-        self.autoName = 0
+        self.autoName = 2
         self.layer = None
         self.fieldName = '$area'
         self.filter = ''
@@ -160,23 +160,44 @@ class LSbar(QToolBar):
 
             #Prepare the computer
             if self.functionName == 'Count':
-                computer = LScountComputer()
+                computer = LScomputerCount()
+            elif self.functionName == 'NonNull':
+                computer = LScomputerNonNull()
             elif self.functionName == 'Sum':
-                computer = LSsumComputer()
+                computer = LScomputerSum()
             elif self.functionName == 'Min':
-                computer = LSminComputer()
+                computer = LScomputerMin()
             elif self.functionName == 'Max':
-                computer = LSmaxComputer()
+                computer = LScomputerMax()
             elif self.functionName == 'Mean':
-                computer = LSmeanComputer()
+                computer = LScomputerMean()
+            elif self.functionName == 'Concat':
+                computer = LScomputerConcat()
+            elif self.functionName == 'UniqueConcat':
+                computer = LScomputerUniqueConcat()
             else:
                 raise NoComputerError()
 
+            def formatter(result):
+                # And we finally display the result in the widget
+                self.locale = QLocale()
+                if not self.separator:
+                    self.locale.setNumberOptions(QLocale.OmitGroupSeparator)
+                result *= float(self.factor)
+                if self.precision < 0:
+                    pow10 = 10**(-self.precision)
+                    result = self.locale.toString(float(pow10*round(result/pow10)), 'f', 0)
+                else:
+                    result = self.locale.toString(result, 'f', self.precision)
+                result = result+self.suffix
+                return result
+            computer.formatter = formatter
+
             #Get the field index for the field that is being comuputed
-            computeFieldIndex = layer.fieldNameIndex( self.fieldName )
+            computeFieldName = self.fieldName
 
             #Not really clear what this does...
-            layer.select( layer.pendingAllAttributesList() )
+            #layer.select( layer.pendingAllAttributesList() )
 
 
             if self.filter != '':
@@ -187,7 +208,7 @@ class LSbar(QToolBar):
             else:
                 expression = None
 
-            if self.fieldName not in ['$area', '$length'] and computeFieldIndex == -1:
+            if self.fieldName not in ['$area', '$length'] and layer.fieldNameIndex( computeFieldName ) == -1:
                 raise NoFieldError()
 
             def getFeatures():
@@ -207,19 +228,12 @@ class LSbar(QToolBar):
                           continue
                     if not result.toBool():
                         continue
-                self.valueForFeature(feature, computer, computeFieldIndex)
+                self.valueForFeature(feature, computer, computeFieldName)
 
 
             result = computer.result()            
 
-            # And we finally display the result in the widget
-            self.locale = QLocale()
-            if not self.separator:
-                self.locale.setNumberOptions(QLocale.OmitGroupSeparator)
-            result *= float(self.factor)
-            result = self.locale.toString(result, 'f', self.precision)
-            result = result+self.suffix
-            self.displayWidget.setText(result)
+            #self.displayWidget.setText(result)
 
             self.setText(result)
 
@@ -262,24 +276,23 @@ class LSbar(QToolBar):
         #self.iface.mainWindow().repaint()
 
 
-    def valueForFeature(self, feature, computer, computeFieldIndex):
+    def valueForFeature(self, feature, computer, computeFieldName):
         # This returns the value for a feature and a computeFieldIndex
         if self.fieldName == '$area':
             if feature.geometry() is None:
                 # This happens for instance when a CSV layer is selected.
                 # They are considered as vector layer (!!) but their features have no geometry
                 raise NoGeometryError()
-            val = feature.geometry().area()
+            val = QVariant(feature.geometry().area())
 
         elif self.fieldName == '$length':
             if feature.geometry() is None:
                 # This happens for instance when a CSV layer is selected.
                 # They are considered as vector layer (!!) but their features have no geometry
                 raise NoGeometryError()
-            val = feature.geometry().length()  
+            val = QVariant(feature.geometry().length())
         else:
-            # This is a bit cryptic (I copied it from statist plugin)
-            val = float( feature.attributeMap()[ computeFieldIndex ].toDouble()[ 0 ] )
+            val = feature.attribute(computeFieldName)
 
         computer.addVal(  val  )
 

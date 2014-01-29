@@ -44,15 +44,17 @@ class LSwidgetChooseField(QComboBox):
         if layer is None:
             layer = self.iface.activeLayer()
             if layer is not None and layer.type() != QgsMapLayer.VectorLayer:
-                layer = None
-                
+                layer = None                
 
         if layer is not None:
             fields = layer.pendingFields()
-            for key in fields:
-                self.addItem(fields[key].name())
+            for field in fields:
+                self.addItem(field.name())
         self.blockSignals(False)
 
         if previousFieldName is not None:
             search = self.findText(previousFieldName)
             self.setCurrentIndex( max(0,search) )
+
+
+
