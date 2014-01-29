@@ -6,7 +6,7 @@
 
 LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback.
 
-![Screenshot](https://raw.github.com/olivierdalang/liveStats/master/screenshot.png)
+![Screenshot](https://raw.github.com/olivierdalang/liveStats/master/resources/screenshot.png)
 
 
 ## Usage ##

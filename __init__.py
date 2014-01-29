@@ -21,33 +21,7 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
-
-def name():
-    return "Live Statistics"
-
-
-def description():
-    return "LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback."
-
-
-def version():
-    return "Version 0.3"
-
-
-def icon():
-    return "icon.png"
-
-
-def qgisMinimumVersion():
-    return "1.8"
-
-def author():
-    return "Olivier Dalang"
-
-def email():
-    return "olivier.dalang@gmail.com"
-
 def classFactory(iface):
     # load LiveStats class from file LiveStats
-    from LSmain import LSmain
-    return LSmain(iface)
+    from LS import LS
+    return LS(iface)

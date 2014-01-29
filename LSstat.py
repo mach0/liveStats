@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- LiveStatsDialog
+ LiveStats
                                  A QGIS plugin
  Display live statistics about vector selections
-                             -------------------
+                              -------------------
         begin                : 2012-12-30
         copyright            : (C) 2012 by Olivier Dalang
         email                : olivier.dalang@gmail.com
@@ -19,45 +19,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-
+# Import the PyQt and QGIS libraries
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
 
-class LSwidgetChooseLayer(QComboBox):
-
+class LSstat(QWidget):
     def __init__(self, iface):
-        QComboBox.__init__(self)
+        # Save reference to the QGIS interface
         self.iface = iface
 
-        self.eligibleLayers = []
-
-    def rebuild(self, previousLayer):
-
-        self.eligibleLayers = []
-        for layer in self.iface.legendInterface().layers():
-            if layer.type() == QgsMapLayer.VectorLayer:
-                self.eligibleLayers.append(layer)
-
-
-        previousIndex = 0
-        self.blockSignals(True)
-        self.clear()   
-        self.addItem('[active]')
-        i=1
-        for layer in self.eligibleLayers:
-            self.addItem(layer.name())
-            if layer is previousLayer:
-                previousIndex = i
-            i+=1
-        self.blockSignals(False)
-
-        self.setCurrentIndex( previousIndex )
-
-    def currentLayer(self):
-        index = self.currentIndex()
-        if index > 0:
-            return self.eligibleLayers[index-1]
-        else: 
-            return None

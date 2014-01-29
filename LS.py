@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- LiveStatsDialog
+ LiveStats
                                  A QGIS plugin
  Display live statistics about vector selections
-                             -------------------
+                              -------------------
         begin                : 2012-12-30
         copyright            : (C) 2012 by Olivier Dalang
         email                : olivier.dalang@gmail.com
@@ -19,42 +19,32 @@
  *                                                                         *
  ***************************************************************************/
 """
-
+# Import the PyQt and QGIS libraries
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
+import resources
 
-class LSwidgetChooseField(QComboBox):
+from LSstat import LSstat
+
+
+class LS:
 
     def __init__(self, iface):
-        QComboBox.__init__(self)
+        # Save reference to the QGIS interface
         self.iface = iface
 
+        self.stats = []
+
+        self.createBar()
 
 
-    def rebuild(self, layer, previousFieldName):
+    def initGui(self):
+        pass
 
-        self.blockSignals(True)
-        self.clear() 
-        self.addItem('$area')
-        self.addItem('$length')
-        #self.addItem('$perimeter')
+    def unload(self):
+        pass
 
-        if layer is None:
-            layer = self.iface.activeLayer()
-            if layer is not None and layer.type() != QgsMapLayer.VectorLayer:
-                layer = None                
-
-        if layer is not None:
-            fields = layer.pendingFields()
-            for field in fields:
-                self.addItem(field.name())
-        self.blockSignals(False)
-
-        if previousFieldName is not None:
-            search = self.findText(previousFieldName)
-            self.setCurrentIndex( max(0,search) )
-
-
-
+    def createBar(self):
+        self.stats.append( LSstat(self.iface) )
