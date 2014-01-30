@@ -23,33 +23,42 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
-
-import resources
-
-from LSstat import LSstat
+from qgis.gui import *
 
 
-class LS:
+class LSbarWidget(QToolBar):
 
-    def __init__(self, iface):
-        # Save reference to the QGIS interface
+    def __init__(self, iface, lsStat):
+        QWidget.__init__(self)
+
         self.iface = iface
+        self.lsStat = lsStat
 
-        self.stats = []
+        # Connect the signals
+        self.lsStat.settingsChanged.connect( self.refreshSettings )
+        self.lsStat.resultChanged.connect( self.refreshResult )
 
-    def initGui(self):        
-        self.createStat()
+        # Create the widgets
+        self.nameWidget = QToolButton()
+        self.countWidget = QLabel()
+        self.resultWidget = QToolButton()
 
-    def unload(self):
-        for stat in self.stats:
-            stat.setParent(None)
+        # Connect the widgets to their actions
+        self.nameWidget.pressed.connect(self.lsStat.showEditWidget)
+        self.resultWidget.pressed.connect(self.lsStat.recompute)
 
-    def createStat(self):
-        self.stats.append( LSstat(self.iface) )
+        # Layout the widgets
+        self.addWidget(self.nameWidget)
+        self.addWidget(self.countWidget)
+        self.addWidget(self.resultWidget)
 
-    """
-    def getStat(self, name):
-        for stat in self.stats:
-            if stat.name == name:
-                return stat.result
-        return None"""
+        # Add the toolbar to the mainWindow
+        self.iface.mainWindow().addToolBar( Qt.BottomToolBarArea, self )
+
+    def refreshSettings(self):
+        self.nameWidget.setText( self.lsStat.name )
+        self.setWindowTitle( " '"+self.lsStat.name+"'" )
+
+    def refreshResult(self):
+        self.resultWidget.setText( str( self.lsStat.result ) )
+        self.countWidget.setText( "(%i)" % self.lsStat.count )
