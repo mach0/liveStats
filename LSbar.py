@@ -283,14 +283,14 @@ class LSbar(QToolBar):
                 # This happens for instance when a CSV layer is selected.
                 # They are considered as vector layer (!!) but their features have no geometry
                 raise NoGeometryError()
-            val = QVariant(feature.geometry().area())
+            val = feature.geometry().area()
 
         elif self.fieldName == '$length':
             if feature.geometry() is None:
                 # This happens for instance when a CSV layer is selected.
                 # They are considered as vector layer (!!) but their features have no geometry
                 raise NoGeometryError()
-            val = QVariant(feature.geometry().length())
+            val = feature.geometry().length()
         else:
             val = feature.attribute(computeFieldName)
 
@@ -298,7 +298,7 @@ class LSbar(QToolBar):
 
     def save(self):
         # This returns this bar's attributes as a QString to be stored in the file
-        returnStringList = QStringList()
+        returnStringList = []
 
         # Statistics attributes
         returnStringList.append( self.name ) #0
@@ -321,7 +321,7 @@ class LSbar(QToolBar):
         returnStringList.append( str(self.pos().x()) ) #12
         returnStringList.append( str(self.pos().y()) ) #13
 
-        return returnStringList.join('*|*')
+        return '*|*'.join(returnStringList)
 
     def load(self, string):
         # This sets this bar's attributes from a QString to be loaded

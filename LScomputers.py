@@ -20,11 +20,6 @@
  ***************************************************************************/
 """
 
-from PyQt4.QtCore import QVariant
-from PyQt4.QtCore import QStringList
-from PyQt4.QtCore import QString
-
-
 class LScomputer():
     def __init__(self):
         self.formatter = lambda x: x
@@ -48,7 +43,7 @@ class LScomputerNonNull(LScomputer):
     def __init__(self):
         self.val = 0
     def addVal(self, val):
-        if not val.isNull():
+        if not val is None:
             self.val += 1
     def result(self):
         return str(self.val)
@@ -57,7 +52,7 @@ class LScomputerSum(LScomputer):
     def __init__(self):
         self.val = 0
     def addVal(self, val):
-        val, ok = val.toDouble()
+        val = float(val)
         self.val += val
     def result(self):
         return self.formatter(self.val)
@@ -67,7 +62,7 @@ class LScomputerMin(LScomputer):
         self.val = 0
         self.first = True
     def addVal(self, val):
-        val, ok = val.toDouble()
+        val = float(val)
         if self.first:
             self.val = val
             self.first = False
@@ -81,7 +76,7 @@ class LScomputerMax(LScomputer):
         self.val = 0
         self.first = True
     def addVal(self, val):
-        val, ok = val.toDouble()
+        val = float(val)
         if self.first:
             self.val = val
             self.first = False
@@ -95,7 +90,7 @@ class LScomputerMean(LScomputer):
         self.val = 0
         self.count = 0
     def addVal(self, val):
-        val, ok = val.toDouble()
+        val = float(val)
         self.val += val
         self.count += 1
     def result(self):
@@ -103,34 +98,34 @@ class LScomputerMean(LScomputer):
             return '-'
         else:
             return self.formatter(self.val / self.count)
-            
+
 class LScomputerConcat(LScomputer):
     def __init__(self):
-        self.val = QStringList()
+        self.val = []
     def addVal(self, val):
 
-        convVal, ok = val.toDouble()
-        if ok:
+        convVal = float(val)
+        if convVal:
             val = self.formatter(convVal)
         else:
-            val = val.toString()
+            val = unicode(val)
         self.val.append(val)
     def result(self):
-        return self.val.join(', ')
+        return ', '.join(self.val)
 
-            
+
 class LScomputerUniqueConcat(LScomputer):
     def __init__(self):
         from sets import Set
         self.val = Set()
     def addVal(self, val):
 
-        convVal, ok = val.toDouble()
+        convVal = float(val)
         if ok:
             val = self.formatter(convVal)
         else:
-            val = val.toString()
+            val = unicode(val)
         self.val.add(val)
     def result(self):
         returnArray = []
-        return QStringList(list(self.val)).join(', ')
+        return ', '.join(ist(self.val))
