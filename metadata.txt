@@ -12,7 +12,7 @@
 name=Live Statistics
 qgisMinimumVersion=2.0
 description=LiveStats allows to display simple statistics about vector data in small toolbars that provide real-time feedback.
-version=0.3
+version=0.4
 author=Olivier Dalang
 email=olivier.dalang@gmail.com
 
@@ -21,7 +21,7 @@ email=olivier.dalang@gmail.com
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog=added help (via the plugin menu), store floating palettes positions, added hide/show all, added delete button, fixed a small bug where there was a NoGeometry error under certain circumstances, fixed clone checkbox staying checked
+changelog=plugin adapted to QGIS 2.X (contributed by Richard Duivenvoorde), added Concat and ConcatUnique computers, formatting supports negative precision (rounding)
 
 # tags are comma separated with spaces allowed
 tags=statistics,live,selection,attribute,display

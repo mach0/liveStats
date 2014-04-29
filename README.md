@@ -54,8 +54,8 @@ Or send me some feedback at : olivier.dalang@gmail.com
     - added delete button
     - fixed a small bug where there was a NoGeometry error under certain circumstances
     - fixed clone checkbox staying checked
-- 2013-03-17 - version 0.4 :
-    - adapted to QGis 2.0
+- 2014-04-29 - version 0.4 :
+    - adapted to QGis 2.0 (thanks to Richard Duivenvoorde who contributed on this)
     - added Concat and ConcatUnique computers
     - formatting supports negative precision (rounding)
 
