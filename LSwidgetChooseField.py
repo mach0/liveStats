@@ -44,7 +44,7 @@ class LSwidgetChooseField(QComboBox):
                 layer = None                
 
         if layer is not None:
-            fields = layer.pendingFields()
+            fields = layer.fields()
             for field in fields:
                 self.addItem(field.name())
         self.blockSignals(False)

@@ -99,23 +99,33 @@ class LSeditor(QDialog):
 
         # Connect signals
         # These are just for autoname
-        QObject.connect(self.autoNameUI, SIGNAL("stateChanged(int)"), self.toggleAutoName)
-        QObject.connect(self.layerUI, SIGNAL("currentIndexChanged(int)"), self.createName)
-        QObject.connect(self.fieldUI, SIGNAL("currentIndexChanged(int)"), self.createName)
-        QObject.connect(self.filterUI, SIGNAL("textChanged(QString)"), self.createName)
-        QObject.connect(self.functionUI, SIGNAL("currentIndexChanged(int)"), self.createName)
-        QObject.connect(self.selectionUI, SIGNAL("stateChanged(int)"), self.createName)
+
+        #QObject.connect(self.autoNameUI, SIGNAL("stateChanged(int)"), self.toggleAutoName)
+        self.autoNameUI.stateChanged.connect(self.toggleAutoName)
+        #QObject.connect(self.layerUI, SIGNAL("currentIndexChanged(int)"), self.createName)
+        self.layerUI.currentIndexChanged.connect(self.createName)
+        #QObject.connect(self.fieldUI, SIGNAL("currentIndexChanged(int)"), self.createName)
+        self.fieldUI.currentIndexChanged.connect(self.createName)
+        #QObject.connect(self.filterUI, SIGNAL("textChanged(QString)"), self.createName)
+        self.filterUI.textChanged.connect(self.createName)
+        #QObject.connect(self.functionUI, SIGNAL("currentIndexChanged(int)"), self.createName)
+        self.filterUI.textChanged.connect(self.createName)
+        #QObject.connect(self.selectionUI, SIGNAL("stateChanged(int)"), self.createName)
+        self.selectionUI.stateChanged.connect(self.createName)
 
         # This makes the fields comboBox refresh when the user chooses a different layer
-        QObject.connect(self.layerUI, SIGNAL("activated(int)"), self.choosedLayerChanged)
+        #QObject.connect(self.layerUI, SIGNAL("activated(int)"), self.choosedLayerChanged)
+        self.layerUI.activated.connect(self.choosedLayerChanged)
 
         # This opens the filter builder
-        QObject.connect(self.filterDialogUI, SIGNAL("pressed()"), self.displayFilterBuilder)
+        #QObject.connect(self.filterDialogUI, SIGNAL("pressed()"), self.displayFilterBuilder)
+        self.filterDialogUI.pressed.connect(self.displayFilterBuilder)
 
         # Confirm or delete
-        QObject.connect(self.acceptUI, SIGNAL("pressed()"), self.accept)
-
-        QObject.connect(self.deleteUI, SIGNAL("pressed()"), self.delete)
+        #QObject.connect(self.acceptUI, SIGNAL("pressed()"), self.accept)
+        self.acceptUI.pressed.connect(self.accept)
+        #QObject.connect(self.deleteUI, SIGNAL("pressed()"), self.delete)
+        self.deleteUI.pressed.connect(self.delete)
 
     def show(self, bar):
         self.setWindowTitle(bar.name)

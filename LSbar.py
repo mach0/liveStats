@@ -58,11 +58,14 @@ class LSbar(QToolBar):
 
         # LiveStatBar's dialog
         self.dialog = LSeditor(self.iface, self)
-        QObject.connect(self.dialog, SIGNAL('accepted()'), self.dialogAccepted)
+        #QObject.connect(self.dialog, SIGNAL('accepted()'), self.dialogAccepted)
+        self.dialog.accepted.connect(self.dialogAccepted)
 
         # We connect the bar to some events that may trigger an update
-        QObject.connect(self.iface, SIGNAL('currentLayerChanged(QgsMapLayer*)'), self.layerChanged)
-        QObject.connect(self.iface.mapCanvas(), SIGNAL('selectionChanged(QgsMapLayer*)'), self.selectionChanged)
+        #QObject.connect(self.iface, SIGNAL('currentLayerChanged(QgsMapLayer*)'), self.layerChanged)
+        self.iface.currentLayerChanged.connect(self.layerChanged)
+        #QObject.connect(self.iface.mapCanvas(), SIGNAL('selectionChanged(QgsMapLayer*)'), self.selectionChanged)
+        self.iface.mapCanvas().selectionChanged.connect(self.selectionChanged)
 
         # Setup the bar GUI
         self.setWindowTitle(self.name)
@@ -191,7 +194,7 @@ class LSbar(QToolBar):
 
             if self.filter != '':
                 expression = QgsExpression(self.filter)
-                expression.prepare(layer.pendingFields())
+                expression.prepare(layer.fields())
                 if expression.hasParserError():
                     raise ParserError(expression.parserErrorString())
             else:
@@ -211,7 +214,7 @@ class LSbar(QToolBar):
             for feature in getFeatures():
 
                 if expression is not None:
-                    result = expression.evaluate(feature, layer.pendingFields())
+                    result = expression.evaluate(feature, layer.fields())
                     if expression.hasEvalError():
                         raise EvalError(expression.evalErrorString())
                         continue
@@ -316,7 +319,8 @@ class LSbar(QToolBar):
             self.name = loadStringList[0]  # 0
             self.autoName = int(loadStringList[1])  # 1
             self.layer = None  # 2
-            for l in self.iface.legendInterface().layers():
+            layers = [lay for lay in QgsProject.instance().mapLayers().values()]
+            for l in layers:
                 if l.id() == loadStringList[2]:
                     self.layer = l  # 2
             self.fieldName = loadStringList[3]  # 3

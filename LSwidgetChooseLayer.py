@@ -35,7 +35,8 @@ class LSwidgetChooseLayer(QComboBox):
     def rebuild(self, previousLayer):
 
         self.eligibleLayers = []
-        for layer in self.iface.legendInterface().layers():
+        layers = [lay for lay in QgsProject.instance().mapLayers().values()]
+        for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer:
                 self.eligibleLayers.append(layer)
 

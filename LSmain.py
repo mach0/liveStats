@@ -20,8 +20,9 @@
  ***************************************************************************/
 """
 # Import the PyQt and QGIS libraries
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import Qt
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtWidgets import QAction
 from qgis.core import *
 
 from . import resources_rc
@@ -40,13 +41,15 @@ class LSmain:
         self.statsBars = []
 
         # We have to load the list when a project is opened
-        QObject.connect(self.iface, SIGNAL("projectRead()"), self.loadFromFile)
+        # QObject.connect(self.iface, SIGNAL("projectRead()"), self.loadFromFile)
+        self.iface.projectRead.connect(self.loadFromFile)
 
         # We have to emtpy the list when a new project is created
-        QObject.connect(self.iface, SIGNAL("newProjectCreated()"), self.removeAllBars)
-
+        #QObject.connect(self.iface, SIGNAL("newProjectCreated()"), self.removeAllBars)
+        self.iface.newProjectCreated.connect(self.removeAllBars)
         # We have to save the list when the project is written
-        QObject.connect(QgsProject.instance(), SIGNAL("writeProject(QDomDocument &)"), self.saveToFile)
+        #QObject.connect(QgsProject.instance(), SIGNAL("writeProject(QDomDocument &)"), self.saveToFile)
+        QgsProject.instance().writeProject.connect(self.saveToFile)
 
         # TODO : this is triggered at the moment the file is read,
         # and the layer then load one after the other
@@ -67,11 +70,19 @@ class LSmain:
         self.hideAllAction = QAction(u"Hide all LiveStats", self.hideAll())
         self.showAllAction = QAction(u"Show all LiveStats", self.showAll())
 
+
+        # QtCore.QObject.connect(self.actionChangeFeedbackController, QtCore.SIGNAL("triggered()"), self.changeFeedbackController)
+        # self.actionChangeFeedbackController.triggered.connect(self.changeFeedbackController)
+
         # Connect the actions
-        QObject.connect(self.action, SIGNAL("triggered()"), self.createBar)
-        QObject.connect(self.helpAction, SIGNAL("triggered()"), self.showHelp)
-        QObject.connect(self.hideAllAction, SIGNAL("triggered()"), self.hideAll)
-        QObject.connect(self.showAllAction, SIGNAL("triggered()"), self.showAll)
+        #QObject.connect(self.action, SIGNAL("triggered()"), self.createBar)
+        self.action.triggered.connect(self.createBar)
+        #QObject.connect(self.helpAction, SIGNAL("triggered()"), self.showHelp)
+        self.helpAction.triggered.connect(self.showHelp)
+        #QObject.connect(self.hideAllAction, SIGNAL("triggered()"), self.hideAll)
+        self.hideAllAction.triggered.connect(self.hideAll)
+        #QObject.connect(self.showAllAction, SIGNAL("triggered()"), self.showAll)
+        self.showAllAction.triggered.connect(self.showAll)
 
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)
