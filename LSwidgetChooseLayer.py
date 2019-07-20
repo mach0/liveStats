@@ -20,8 +20,7 @@
  ***************************************************************************/
 """
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt.QtWidgets import QComboBox
 from qgis.core import *
 
 
@@ -40,7 +39,6 @@ class LSwidgetChooseLayer(QComboBox):
             if layer.type() == QgsMapLayer.VectorLayer:
                 self.eligibleLayers.append(layer)
 
-
         previousIndex = 0
         self.blockSignals(True)
         self.clear()   
@@ -53,7 +51,7 @@ class LSwidgetChooseLayer(QComboBox):
             i+=1
         self.blockSignals(False)
 
-        self.setCurrentIndex( previousIndex )
+        self.setCurrentIndex(previousIndex)
 
     def currentLayer(self):
         index = self.currentIndex()

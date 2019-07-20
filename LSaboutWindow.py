@@ -20,9 +20,10 @@
  ***************************************************************************/
 """
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtCore import QObject, QFileInfo
+from qgis.PyQt.QtWidgets import QDialog, QTextBrowser, QPushButton, QVBoxLayout
+from qgis.core import QgsApplication
+
 
 class LSaboutWindow(QDialog):
 
@@ -38,11 +39,11 @@ class LSaboutWindow(QDialog):
 
         txt = QTextBrowser()
         txt.setReadOnly(True)
-        txt.setText( open(self.helpFile, 'r').read() )
+        txt.setText(open(self.helpFile, 'r').read())
 
         cls = QPushButton('Close')
 
-        QObject.connect(cls,SIGNAL("pressed()"),self.accept)
+        QObject.connect(cls, SIGNAL("pressed()"), self.accept)
 
         lay = QVBoxLayout()
         lay.addWidget(txt)

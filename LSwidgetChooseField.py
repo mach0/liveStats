@@ -20,9 +20,8 @@
  ***************************************************************************/
 """
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtWidgets import QComboBox
+from qgis.core import QgsMapLayer
 
 
 class LSwidgetChooseField(QComboBox):
@@ -30,8 +29,6 @@ class LSwidgetChooseField(QComboBox):
     def __init__(self, iface):
         QComboBox.__init__(self)
         self.iface = iface
-
-
 
     def rebuild(self, layer, previousFieldName):
 
@@ -54,7 +51,4 @@ class LSwidgetChooseField(QComboBox):
 
         if previousFieldName is not None:
             search = self.findText(previousFieldName)
-            self.setCurrentIndex( max(0,search) )
-
-
-
+            self.setCurrentIndex(max(0, search))

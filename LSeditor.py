@@ -20,146 +20,117 @@
  ***************************************************************************/
 """
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
-import importlib
+from qgis.PyQt.QtCore import QObject
+from qgis.PyQt.QtWidgets import QDialog, QGridLayout, QLineEdit, QCheckBox, \
+    QComboBox, QPushButton, QSpinBox, QLabel, QMessageBox
+from qgis.PyQt.QtGui import QDoubleValidator
+# from qgis.gui import *
 
-from LSwidgetChooseField import LSwidgetChooseField
-from LSwidgetChooseLayer import LSwidgetChooseLayer
+from .LSwidgetChooseField import LSwidgetChooseField
+from .LSwidgetChooseLayer import LSwidgetChooseLayer
+
 
 class LSeditor(QDialog):
-
     def __init__(self, iface, bar):
         QDialog.__init__(self)
-
         self.iface = iface
         self.bar = bar
-
         self.setModal(True)
 
-        #Set layout
+        # Set layout
         self.layout = QGridLayout()
         self.setLayout(self.layout)
 
-
-        #Create widgets
+        # Create widgets
         self.nameUI = QLineEdit()
         self.autoNameUI = QCheckBox('Auto')
-
         self.layerUI = LSwidgetChooseLayer(self.iface)
         self.fieldUI = LSwidgetChooseField(self.iface)
         self.functionUI = QComboBox()
         self.filterUI = QLineEdit()
         self.filterDialogUI = QPushButton('editor')
         self.selectionUI = QCheckBox()
-
         self.precisionUI = QSpinBox()
         self.suffixUI = QLineEdit()
         self.factorUI = QLineEdit()
         self.separatorUI = QCheckBox()
-
         self.acceptUI = QPushButton('OK')
         self.deleteUI = QPushButton('Delete')
         self.cloneUI = QCheckBox('Copy')
 
-
-        
-
-
-        #Setup widgets
+        # Setup widgets
         self.nameUI.setMinimumWidth(300)
         self.autoNameUI.setChecked(True)
-
-        self.functionUI.addItems(['Sum','Mean','Min','Max','NonNull','Count','Concat','UniqueConcat'])
+        self.functionUI.addItems(['Sum', 'Mean', 'Min', 'Max', 'NonNull', 'Count', 'Concat', 'UniqueConcat'])
         self.selectionUI.setChecked(True)
-
-
-        self.precisionUI.setRange(-10,10)
+        self.precisionUI.setRange(-10, 10)
         self.factorUI.setValidator(QDoubleValidator())
-
         self.acceptUI.setDefault(True)
 
-
-        #Layout widgets
-        self.layout.addWidget(QLabel('Name'),0,0)
-        self.layout.addWidget(self.nameUI,0,1)
-        self.layout.addWidget(self.autoNameUI,0,2)
-
-        self.layout.addWidget(QLabel('Layer'),1,0)
-        self.layout.addWidget(self.layerUI,1,1,1,2)
-
-        self.layout.addWidget(QLabel('Function'),2,0)
-        self.layout.addWidget(self.functionUI,2,1,1,2)
-
-        self.layout.addWidget(QLabel('Field'),3,0)
-        self.layout.addWidget(self.fieldUI,3,1,1,2)
-
-        self.layout.addWidget(QLabel('Filter (where)'),4,0)
-        self.layout.addWidget(self.filterUI,4,1)
-        self.layout.addWidget(self.filterDialogUI,4,2)
-
-        self.layout.addWidget(QLabel('Selection only'),5,0)
-        self.layout.addWidget(self.selectionUI,5,1,1,2)
-
-        self.layout.addWidget(QLabel('Precision, suffix, factor, separator'),6,0)
+        # Layout widgets
+        self.layout.addWidget(QLabel('Name'), 0, 0)
+        self.layout.addWidget(self.nameUI, 0, 1)
+        self.layout.addWidget(self.autoNameUI, 0, 2)
+        self.layout.addWidget(QLabel('Layer'), 1, 0)
+        self.layout.addWidget(self.layerUI, 1, 1, 1, 2)
+        self.layout.addWidget(QLabel('Function'), 2, 0)
+        self.layout.addWidget(self.functionUI, 2, 1, 1, 2)
+        self.layout.addWidget(QLabel('Field'), 3, 0)
+        self.layout.addWidget(self.fieldUI, 3, 1, 1, 2)
+        self.layout.addWidget(QLabel('Filter (where)'), 4, 0)
+        self.layout.addWidget(self.filterUI, 4, 1)
+        self.layout.addWidget(self.filterDialogUI, 4, 2)
+        self.layout.addWidget(QLabel('Selection only'), 5, 0)
+        self.layout.addWidget(self.selectionUI, 5, 1, 1, 2)
+        self.layout.addWidget(QLabel('Precision, suffix, factor, separator'), 6, 0)
         subLayout = QGridLayout()
-        subLayout.addWidget(self.precisionUI,0,0)
-        subLayout.addWidget(self.suffixUI,0,1)
-        subLayout.addWidget(self.factorUI,0,2)
-        subLayout.addWidget(self.separatorUI,0,3)
-        subLayout.setColumnStretch(0,1)
-        subLayout.setColumnStretch(1,1)
-        subLayout.setColumnStretch(2,1)
-        subLayout.setColumnStretch(3,0)
-        self.layout.addLayout(subLayout,6,1,1,2)
+        subLayout.addWidget(self.precisionUI, 0, 0)
+        subLayout.addWidget(self.suffixUI, 0, 1)
+        subLayout.addWidget(self.factorUI, 0, 2)
+        subLayout.addWidget(self.separatorUI, 0, 3)
+        subLayout.setColumnStretch(0, 1)
+        subLayout.setColumnStretch(1, 1)
+        subLayout.setColumnStretch(2, 1)
+        subLayout.setColumnStretch(3, 0)
+        self.layout.addLayout(subLayout, 6, 1, 1, 2)
+        self.layout.addWidget(self.deleteUI, 9, 0)
+        self.layout.addWidget(self.acceptUI, 9, 1)
+        self.layout.addWidget(self.cloneUI, 9, 2)
 
-        self.layout.addWidget(self.deleteUI,9,0)
-        self.layout.addWidget(self.acceptUI,9,1)
-        self.layout.addWidget(self.cloneUI,9,2)
-
-
-
-        #Connect signals
+        # Connect signals
         # These are just for autoname
-        QObject.connect(self.autoNameUI,SIGNAL("stateChanged(int)"),self.toggleAutoName)
-        QObject.connect(self.layerUI,SIGNAL("currentIndexChanged(int)"),self.createName)
-        QObject.connect(self.fieldUI,SIGNAL("currentIndexChanged(int)"),self.createName)
-        QObject.connect(self.filterUI,SIGNAL("textChanged(QString)"),self.createName)
-        QObject.connect(self.functionUI,SIGNAL("currentIndexChanged(int)"),self.createName)
-        QObject.connect(self.selectionUI,SIGNAL("stateChanged(int)"),self.createName)
+        QObject.connect(self.autoNameUI, SIGNAL("stateChanged(int)"), self.toggleAutoName)
+        QObject.connect(self.layerUI, SIGNAL("currentIndexChanged(int)"), self.createName)
+        QObject.connect(self.fieldUI, SIGNAL("currentIndexChanged(int)"), self.createName)
+        QObject.connect(self.filterUI, SIGNAL("textChanged(QString)"), self.createName)
+        QObject.connect(self.functionUI, SIGNAL("currentIndexChanged(int)"), self.createName)
+        QObject.connect(self.selectionUI, SIGNAL("stateChanged(int)"), self.createName)
 
         # This makes the fields comboBox refresh when the user chooses a different layer
-        QObject.connect(self.layerUI,SIGNAL("activated(int)"),self.choosedLayerChanged)
+        QObject.connect(self.layerUI, SIGNAL("activated(int)"), self.choosedLayerChanged)
 
         # This opens the filter builder
-        QObject.connect(self.filterDialogUI,SIGNAL("pressed()"),self.displayFilterBuilder)
+        QObject.connect(self.filterDialogUI, SIGNAL("pressed()"), self.displayFilterBuilder)
 
         # Confirm or delete
-        QObject.connect(self.acceptUI,SIGNAL("pressed()"),self.accept)
+        QObject.connect(self.acceptUI, SIGNAL("pressed()"), self.accept)
 
-        QObject.connect(self.deleteUI,SIGNAL("pressed()"),self.delete)
-
+        QObject.connect(self.deleteUI, SIGNAL("pressed()"), self.delete)
 
     def show(self, bar):
-
-        self.setWindowTitle( bar.name )
-
-        self.nameUI.setText( bar.name )
-        self.autoNameUI.setCheckState( bar.autoName )
-        self.layerUI.rebuild( bar.layer )
-        self.fieldUI.rebuild( bar.layer, bar.fieldName )
-        self.filterUI.setText( bar.filter )
-        self.functionUI.setCurrentIndex( max(0,self.functionUI.findText(bar.functionName)) )
-        self.selectionUI.setCheckState( bar.selectedOnly )
-        self.precisionUI.setValue( bar.precision )
-        self.suffixUI.setText( bar.suffix )
-        self.factorUI.setText( bar.factor )
-        self.separatorUI.setCheckState( bar.separator )
-
-        self.cloneUI.setCheckState( False )
-
+        self.setWindowTitle(bar.name)
+        self.nameUI.setText(bar.name)
+        self.autoNameUI.setCheckState(bar.autoName)
+        self.layerUI.rebuild(bar.layer)
+        self.fieldUI.rebuild(bar.layer, bar.fieldName)
+        self.filterUI.setText(bar.filter)
+        self.functionUI.setCurrentIndex(max(0, self.functionUI.findText(bar.functionName)))
+        self.selectionUI.setCheckState(bar.selectedOnly)
+        self.precisionUI.setValue(bar.precision)
+        self.suffixUI.setText(bar.suffix)
+        self.factorUI.setText(bar.factor)
+        self.separatorUI.setCheckState(bar.separator)
+        self.cloneUI.setCheckState(False)
         self.createName(0)
 
         QDialog.show(self)
@@ -170,7 +141,7 @@ class LSeditor(QDialog):
         currentLayer = self.layerUI.currentLayer()
         if currentLayer is None:
             currentLayer = self.iface.activeLayer()
-        self.fieldUI.rebuild( currentLayer, None )
+        self.fieldUI.rebuild(currentLayer, None)
 
     def toggleAutoName(self, index):
         if not self.autoNameUI.checkState():
@@ -180,11 +151,10 @@ class LSeditor(QDialog):
             self.createName(0)
 
     def displayFilterBuilder(self):
-        expDlg = QgsSearchQueryBuilder( self.layerUI.currentLayer() )
-        expDlg.setSearchString(  self.filterUI.text() )
+        expDlg = QgsSearchQueryBuilder(self.layerUI.currentLayer())
+        expDlg.setSearchString(self.filterUI.text())
         if expDlg.exec_():
             self.filterUI.setText(expDlg.searchString())
-
 
     def createName(self, index):
         if self.autoNameUI.checkState():
@@ -213,8 +183,3 @@ class LSeditor(QDialog):
         if deleteDialog.exec_() == QMessageBox.Ok:
             self.reject()
             self.bar.dialogDelete()
-
-
-
-
-
