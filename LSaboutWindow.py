@@ -19,8 +19,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-# Import the PyQt and QGIS libraries
-from qgis.PyQt.QtCore import QObject, QFileInfo
+
+from qgis.PyQt.QtCore import QFileInfo
 from qgis.PyQt.QtWidgets import QDialog, QTextBrowser, QPushButton, QVBoxLayout
 from qgis.core import QgsApplication
 
@@ -42,8 +42,7 @@ class LSaboutWindow(QDialog):
         txt.setText(open(self.helpFile, 'r').read())
 
         cls = QPushButton('Close')
-
-        QObject.connect(cls, SIGNAL("pressed()"), self.accept)
+        cls.pressed.connect(self.accept)
 
         lay = QVBoxLayout()
         lay.addWidget(txt)

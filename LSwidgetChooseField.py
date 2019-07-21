@@ -36,7 +36,7 @@ class LSwidgetChooseField(QComboBox):
         self.clear() 
         self.addItem('$area')
         self.addItem('$length')
-        #self.addItem('$perimeter')
+        # self.addItem('$perimeter')
 
         if layer is None:
             layer = self.iface.activeLayer()

@@ -21,7 +21,7 @@
 """
 
 from qgis.PyQt.QtWidgets import QComboBox
-from qgis.core import *
+from qgis.core import QgsProject, QgsMapLayer
 
 
 class LSwidgetChooseLayer(QComboBox):
@@ -44,12 +44,12 @@ class LSwidgetChooseLayer(QComboBox):
         self.blockSignals(True)
         self.clear()   
         self.addItem('[active]')
-        i=1
+        i = 1
         for layer in self.eligibleLayers:
             self.addItem(layer.name())
             if layer is previousLayer:
                 previousIndex = i
-            i+=1
+            i += 1
         self.blockSignals(False)
 
         self.setCurrentIndex(previousIndex)

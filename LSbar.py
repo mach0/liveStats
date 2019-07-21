@@ -20,13 +20,13 @@
  ***************************************************************************/
 """
 
-from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtCore import QLocale
 from qgis.PyQt.QtWidgets import QToolBar, QLabel
+from qgis.core import QgsMapLayer, QgsProject, QgsExpression
 
-from qgis.core import *
-
-from . LSeditor import LSeditor
-from . LScomputers import *
+from .LSeditor import LSeditor
+from .LScomputers import LScomputerConcat, LScomputerCount, LScomputerMax, LScomputerMean, \
+    LScomputerMin, LScomputerSum, LScomputerUniqueConcat, LScomputerNonNull
 
 
 class LSbar(QToolBar):
@@ -37,7 +37,6 @@ class LSbar(QToolBar):
         self.iface = iface
         self.mainClass = mainClass
         LSbar.count += 1
-
         # LiveStatBar's properties
         self.name = "LiveStat %i" % LSbar.count
         self.autoName = 2
@@ -50,36 +49,25 @@ class LSbar(QToolBar):
         self.suffix = '   '
         self.factor = '1'
         self.separator = 2
-
         self.position = {}
         self.position['floating'] = 0
         self.position['x'] = 0
         self.position['y'] = 0
-
         # LiveStatBar's dialog
         self.dialog = LSeditor(self.iface, self)
-        #QObject.connect(self.dialog, SIGNAL('accepted()'), self.dialogAccepted)
         self.dialog.accepted.connect(self.dialogAccepted)
-
         # We connect the bar to some events that may trigger an update
-        #QObject.connect(self.iface, SIGNAL('currentLayerChanged(QgsMapLayer*)'), self.layerChanged)
         self.iface.currentLayerChanged.connect(self.layerChanged)
-        #QObject.connect(self.iface.mapCanvas(), SIGNAL('selectionChanged(QgsMapLayer*)'), self.selectionChanged)
         self.iface.mapCanvas().selectionChanged.connect(self.selectionChanged)
-
         # Setup the bar GUI
         self.setWindowTitle(self.name)
-
         # Create widgets
         self.nameWidget = QLabel(self.name)
         self.displayWidget = QLabel("Click to edit")
-
         # Layout widgets
         self.addWidget(self.nameWidget)
         self.addWidget(self.displayWidget)
-
         self.setMinimumSize(self.sizeHint())
-
         # We display the dialog at creation (if required)
         if showDialog:
             self.dialog.show(self)
@@ -114,7 +102,6 @@ class LSbar(QToolBar):
         bar.suffix = self.dialog.suffixUI.text()
         bar.factor = self.dialog.factorUI.text()
         bar.separator = self.dialog.separatorUI.checkState()
-
         bar.setWindowTitle('LiveStat "'+bar.name+'"')
 
         # And we recompute the bar
@@ -138,7 +125,7 @@ class LSbar(QToolBar):
 
     def compute(self):
         # This recomputes the bar
-        #QgsMessageLog.logMessage('COMPUTE','LiveStats')
+        # QgsMessageLog.logMessage('COMPUTE','LiveStats')
 
         try:
             # Get the layer.

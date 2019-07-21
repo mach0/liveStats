@@ -1,6 +1,6 @@
 # LiveStats #
 
-**Disclaimer** : use at your own risk, the plugin is in developpement. In case of problem, open your QGis file in a plain text editor, and remove everything between &lt;LiveStats&gt; and &lt;/LiveStats&gt;.
+**Disclaimer** : use at your own risk, the plugin is in development. In case of problem, open your QGis file in a plain text editor, and remove everything between &lt;LiveStats&gt; and &lt;/LiveStats&gt;.
 
 ## Description ##
 
@@ -62,6 +62,6 @@ Or send me some feedback at : olivier.dalang@gmail.com
 
 ## Contribute ##
 
-Help is welcome ! There's a serie of issues and ideas on the github repository : https://github.com/olivierdalang/liveStats.git
+Help is welcome ! There's a series of issues and ideas on the github repository : https://github.com/olivierdalang/liveStats.git
 
 

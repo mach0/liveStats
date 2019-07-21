@@ -23,7 +23,5 @@
 
 
 def classFactory(iface):
-    # load LiveStats class from file LiveStats
     from .LSmain import LSmain
     return LSmain(iface)
-
