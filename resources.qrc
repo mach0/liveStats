@@ -1,8 +1,6 @@
 <RCC>
-    <qresource prefix="/plugins/livestats/img" >
-        <file>icon.png</file>
-    </qresource>
-    <qresource prefix="/plugins/livestats/img" >
-        <file>about.png</file>
+    <qresource prefix="/plugins/livestats">
+        <file>img/about.png</file>
+        <file>img/icon.png</file>
     </qresource>
 </RCC>
